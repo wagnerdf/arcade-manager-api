@@ -1,33 +1,54 @@
+# ===============================
 # Maven
+# ===============================
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 
+# ===============================
 # Logs
+# ===============================
 *.log
 
-# IDE IntelliJ
+# ===============================
+# IDE - IntelliJ
+# ===============================
 .idea/
 *.iws
 *.iml
 *.ipr
 
-# VS Code
+# ===============================
+# IDE - VS Code
+# ===============================
 .vscode/
 
-# Eclipse
+# ===============================
+# IDE - STS4 / Eclipse
+# ===============================
 .project
 .classpath
 .settings/
+.factorypath
+.springBeans
+.sts4-cache/
 
-# OS
+# ===============================
+# OS Files
+# ===============================
 .DS_Store
 Thumbs.db
 
-# Environment files
+# ===============================
+# Environment / Sensitive
+# ===============================
 .env
 
+# ===============================
 # Lombok
+# ===============================
 lombok.config
 
-# Mongo local database files (caso algum dia rode embedded)
+# ===============================
+# Mongo local (caso use embedded)
+# ===============================
 /data/
