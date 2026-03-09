@@ -2,6 +2,7 @@ package com.wagnerdf.arcademanager.security;
 
 import java.util.Date;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
@@ -26,5 +27,37 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
                 .signWith(secretKey, SignatureAlgorithm.HS256) // usar SecretKey
                 .compact();
+    }
+    
+    /** Extrair usuário do token **/
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+    
+    /** Validar token **/
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+
+        final String username = extractUsername(token);
+
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+    
+    /** Verificar expiração **/
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
     }
 }
