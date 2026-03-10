@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.wagnerdf.arcademanager.enums.Role;
+
 import lombok.*;
 
 @Document(collection = "users")

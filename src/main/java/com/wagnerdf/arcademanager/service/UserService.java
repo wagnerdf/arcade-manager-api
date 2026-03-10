@@ -4,10 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.wagnerdf.arcademanager.entity.Role;
 import com.wagnerdf.arcademanager.entity.User;
+import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
-import com.wagnerdf.arcademanager.repository.RoleRepository;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     public User registerUser(User userRequest) {
@@ -28,14 +26,11 @@ public class UserService {
             throw new BusinessException("Email já cadastrado", HttpStatus.CONFLICT);
         }
 
-        Role role = roleRepository.findByName("USER")
-                .orElseThrow(() -> new BusinessException("Role USER não encontrada", HttpStatus.NOT_FOUND));
-
         User user = User.builder()
                 .fullName(userRequest.getFullName())
                 .email(email)
                 .password(passwordEncoder.encode(userRequest.getPassword()))
-                .role(role)
+                .role(Role.USER)   // define enum USER por padrão
                 .active(true)
                 .build();
 

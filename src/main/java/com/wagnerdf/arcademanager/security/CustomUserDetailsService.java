@@ -1,6 +1,6 @@
 package com.wagnerdf.arcademanager.security;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -31,9 +31,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 true, // accountNonExpired
                 true, // credentialsNonExpired
                 true, // accountNonLocked
+                // Converte enum Role em SimpleGrantedAuthority com prefixo ROLE_
                 user.getRole() != null
-                    ? java.util.List.of(new SimpleGrantedAuthority(user.getRole().getName()))
-                    : java.util.List.of()
+                    ? List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                    : List.of()
         );
     }
 }
