@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,9 +32,29 @@ public class UserService {
                 .fullName(userRequest.getFullName())
                 .email(email)
                 .password(passwordEncoder.encode(userRequest.getPassword()))
-                .role(Role.USER)   // define enum USER por padrão
+                .role(Role.USER)
                 .active(true)
                 .build();
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Listar todos os usuários
+     */
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Promover usuário para ADMIN
+     */
+    public User promoteToAdmin(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+
+        user.setRole(Role.ADMIN);
 
         return userRepository.save(user);
     }
