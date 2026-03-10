@@ -51,10 +51,16 @@ public class UserController {
      */
     @PutMapping("/{id}/promote")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> promoteUser(@PathVariable String id) {
+    public ResponseEntity<User> promoteUser(@PathVariable String id, Authentication auth) {
 
-        User updatedUser = userService.promoteToAdmin(id);
+        // Pega o email do token
+        String email = auth.getName();
 
+        // Busca no MongoDB o usuário logado
+        User currentAdmin = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessException("Usuário logado não encontrado", HttpStatus.NOT_FOUND));
+
+        User updatedUser = userService.promoteToAdmin(id, currentAdmin.getId());
         return ResponseEntity.ok(updatedUser);
     }
     

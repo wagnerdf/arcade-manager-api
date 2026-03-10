@@ -49,13 +49,28 @@ public class UserService {
     /**
      * Promover usuário para ADMIN
      */
-    public User promoteToAdmin(String userId) {
+    public User promoteToAdmin(String userId, String currentAdminId) {
+
+        // Impede que o ADMIN tente promover a si mesmo
+        if(userId.equals(currentAdminId)) {
+            throw new BusinessException(
+                "Você não pode alterar seu próprio papel ADMIN", 
+                HttpStatus.FORBIDDEN
+            );
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
-        user.setRole(Role.ADMIN);
+        // Verifica se já é ADMIN
+        if(user.getRole() == Role.ADMIN) {
+            throw new BusinessException(
+                "Operação não realizada: usuário já é ADMIN", 
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
+        user.setRole(Role.ADMIN);
         return userRepository.save(user);
     }
     
