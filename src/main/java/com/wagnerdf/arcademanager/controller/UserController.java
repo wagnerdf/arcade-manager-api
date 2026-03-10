@@ -5,9 +5,12 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.entity.User;
+import com.wagnerdf.arcademanager.exception.BusinessException;
+import com.wagnerdf.arcademanager.repository.UserRepository;
 import com.wagnerdf.arcademanager.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserService userService;
+    
+    private final UserRepository userRepository;
 
     /**
      * Endpoint para registrar um novo usuário
@@ -50,6 +55,25 @@ public class UserController {
 
         User updatedUser = userService.promoteToAdmin(id);
 
+        return ResponseEntity.ok(updatedUser);
+    }
+    
+    /**
+     * Reverter usuário para USER
+     * PUT /api/users/{id}/demote
+     */
+    @PutMapping("/{id}/demote")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> demoteUser(@PathVariable String id, Authentication auth) {
+
+        // Pega o email do usuário logado do token
+        String email = auth.getName();
+
+        // Busca o usuário no Mongo
+        User currentAdmin = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessException("Usuário logado não encontrado", HttpStatus.NOT_FOUND));
+
+        User updatedUser = userService.demoteToUser(id, currentAdmin.getId());
         return ResponseEntity.ok(updatedUser);
     }
 }

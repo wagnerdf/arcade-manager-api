@@ -58,4 +58,32 @@ public class UserService {
 
         return userRepository.save(user);
     }
+    
+    /**
+     * Demote ADMIN to USER
+     */
+    public User demoteToUser(String userId, String currentAdminId) {
+
+        if(userId.equals(currentAdminId)) {
+            throw new BusinessException(
+                "Você não pode remover seu próprio papel ADMIN", 
+                HttpStatus.FORBIDDEN
+            );
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+
+        // Verifica se já é USER
+        if(user.getRole() == Role.USER) {
+            throw new BusinessException(
+                "Operação não realizada: usuário já é USER", 
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        // Se não, faz o demote
+        user.setRole(Role.USER);
+        return userRepository.save(user);
+    }
 }
