@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.entity.User;
@@ -99,6 +101,23 @@ public class UserService {
 
         // Se não, faz o demote
         user.setRole(Role.USER);
+        return userRepository.save(user);
+    }
+    
+    public User toggleUserStatus(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedUserEmail = authentication.getName();
+
+        if (user.getEmail().equals(loggedUserEmail)) {
+            throw new RuntimeException("Administradores não podem alterar seu próprio status.");
+        }
+        
+        user.setActive(!user.isActive());
+
         return userRepository.save(user);
     }
 }

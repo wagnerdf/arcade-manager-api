@@ -82,4 +82,17 @@ public class UserController {
         User updatedUser = userService.demoteToUser(id, currentAdmin.getId());
         return ResponseEntity.ok(updatedUser);
     }
+
+    /**
+     * Habilitar ou desabilitar usuário
+     * 
+     */
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> toggleUserStatus(@PathVariable String id) {
+
+        User updatedUser = userService.toggleUserStatus(id);
+
+        return ResponseEntity.ok(updatedUser);
+    }
 }
