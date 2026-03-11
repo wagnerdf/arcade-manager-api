@@ -85,7 +85,7 @@ public class UserController {
 
     /**
      * Habilitar ou desabilitar usuário
-     * 
+     * PUT api / users / {id} /status
      */
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
@@ -94,5 +94,18 @@ public class UserController {
         User updatedUser = userService.toggleUserStatus(id);
 
         return ResponseEntity.ok(updatedUser);
+    }
+    
+    /**
+     * Deletar usuário
+     * DELETE api / users / {id}
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+
+        userService.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

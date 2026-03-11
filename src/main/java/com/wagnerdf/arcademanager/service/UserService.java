@@ -120,4 +120,28 @@ public class UserService {
 
         return userRepository.save(user);
     }
+    
+    public void deleteUser(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedUserEmail = authentication.getName();
+
+        if (user.getEmail().equals(loggedUserEmail)) {
+            throw new RuntimeException("Admin cannot delete their own account");
+        }
+
+        if (user.getRole() == Role.ADMIN) {
+
+            long adminCount = userRepository.countByRole(Role.ADMIN);
+
+            if (adminCount <= 1) {
+                throw new RuntimeException("Cannot delete the last ADMIN of the system");
+            }
+        }
+
+        userRepository.delete(user);
+    }
 }
