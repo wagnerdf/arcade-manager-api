@@ -1,5 +1,9 @@
 package com.wagnerdf.arcademanager.repository;
 
-public class GenreRepository {
+import org.springframework.data.mongodb.repository.MongoRepository;
 
+import com.wagnerdf.arcademanager.entity.Genre;
+
+public interface GenreRepository extends MongoRepository<Genre, String> {
+	
 }

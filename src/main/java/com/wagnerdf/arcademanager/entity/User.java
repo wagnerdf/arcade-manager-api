@@ -1,7 +1,10 @@
 package com.wagnerdf.arcademanager.entity;
 
+import java.util.Set;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,4 +34,11 @@ public class User {
     private Role role;
 
     private boolean active;
+    
+    private String phone;
+
+    private Address address;
+
+    @DBRef
+    private Set<Genre> favoriteGenres;
 }
