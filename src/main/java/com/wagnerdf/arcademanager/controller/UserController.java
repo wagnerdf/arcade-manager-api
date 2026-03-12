@@ -108,4 +108,12 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return userService.findByEmail(email);
+    }
 }

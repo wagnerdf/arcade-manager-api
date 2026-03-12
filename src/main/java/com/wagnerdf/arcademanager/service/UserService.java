@@ -124,13 +124,13 @@ public class UserService {
     public void deleteUser(String userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
 
         if (user.getEmail().equals(loggedUserEmail)) {
-            throw new RuntimeException("Admin cannot delete their own account");
+            throw new RuntimeException("O administrador não pode excluir a própria conta.");
         }
 
         if (user.getRole() == Role.ADMIN) {
@@ -138,10 +138,17 @@ public class UserService {
             long adminCount = userRepository.countByRole(Role.ADMIN);
 
             if (adminCount <= 1) {
-                throw new RuntimeException("Cannot delete the last ADMIN of the system");
+                throw new RuntimeException("Não é possível excluir o último ADMINISTRADOR do sistema.");
             }
         }
 
         userRepository.delete(user);
+    }
+    /**
+     * buscar usuário pelo email (que vem do JWT)
+    **/
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 }
