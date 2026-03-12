@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
@@ -22,18 +23,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User registerUser(User userRequest) {
+    public User registerUser(RegisterUserRequest request) {
 
-        String email = userRequest.getEmail().toLowerCase();
+        String email = request.getEmail().toLowerCase();
 
         if (userRepository.existsByEmail(email)) {
             throw new BusinessException("Email já cadastrado", HttpStatus.CONFLICT);
         }
 
         User user = User.builder()
-                .fullName(userRequest.getFullName())
+                .fullName(request.getFullName())
                 .email(email)
-                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
+                .address(request.getAddress())
                 .role(Role.USER)
                 .active(true)
                 .build();

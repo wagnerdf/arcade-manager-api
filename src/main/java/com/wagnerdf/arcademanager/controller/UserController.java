@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
@@ -29,8 +30,10 @@ public class UserController {
      * POST /api/users/register
      */
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User userRequest) {
-        User createdUser = userService.registerUser(userRequest);
+    public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
+
+        User createdUser = userService.registerUser(request);
+
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
