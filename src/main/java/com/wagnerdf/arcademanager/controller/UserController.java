@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.dto.UserResponse;
@@ -146,5 +147,19 @@ public class UserController {
         User updatedUser = userService.updateUserProfile(authentication.getName(), request);
 
         return ResponseEntity.ok(userService.mapToResponse(updatedUser));
+    }
+    
+    /**
+     * Alterar senha do usuário autenticado
+     * PUT /api/users/me/password
+     */
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
+
+        userService.changePassword(authentication.getName(), request);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
 import com.wagnerdf.arcademanager.dto.GenreResponse;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
@@ -271,5 +272,34 @@ public class UserService {
                 .address(user.getAddress())
                 .favoriteGenres(genres)
                 .build();
+    }
+    
+    /**
+     * Altera a senha do usuário autenticado.
+     *
+     * Regras:
+     * - senha atual deve estar correta
+     * - nova senha e confirmação devem ser iguais
+     * - nova senha é criptografada antes de salvar
+     */
+    public void changePassword(String email, ChangePasswordRequest request) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+
+        // valida senha atual
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException("Senha atual incorreta", HttpStatus.BAD_REQUEST);
+        }
+
+        // valida confirmação da nova senha
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("Nova senha e confirmação não conferem", HttpStatus.BAD_REQUEST);
+        }
+
+        // criptografa nova senha
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
     }
 }
