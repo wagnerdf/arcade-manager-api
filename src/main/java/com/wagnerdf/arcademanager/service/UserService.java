@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.wagnerdf.arcademanager.dto.GenreResponse;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.dto.UserResponse;
@@ -192,12 +193,15 @@ public class UserService {
     
     public UserResponse mapToResponse(User user) {
 
-        Set<String> genreIds = null;
+    	Set<GenreResponse> genres = null;
 
-        if (user.getFavoriteGenres() != null) {
-            genreIds = user.getFavoriteGenres()
+    	if (user.getFavoriteGenres() != null) {
+            genres = user.getFavoriteGenres()
                     .stream()
-                    .map(genre -> genre.getId())
+                    .map(genre -> GenreResponse.builder()
+                            .id(genre.getId())
+                            .name(genre.getName())
+                            .build())
                     .collect(Collectors.toSet());
         }
 
@@ -207,7 +211,7 @@ public class UserService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .address(user.getAddress())
-                .favoriteGenres(genreIds)
+                .favoriteGenres(genres)
                 .build();
     }
 }
