@@ -1,6 +1,8 @@
 package com.wagnerdf.arcademanager.service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,9 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
+import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
+import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
+import com.wagnerdf.arcademanager.repository.GenreRepository;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +27,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final GenreRepository genreRepository;
 
     public User registerUser(RegisterUserRequest request) {
 
@@ -153,5 +159,32 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+    
+    public User updateUserProfile(String email, UpdateUserProfileRequest request) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("User not found", HttpStatus.NOT_FOUND));
+
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+
+        if (request.getFavoriteGenres() != null) {
+
+        	Set<Genre> genres = new HashSet<>(genreRepository.findAllById(request.getFavoriteGenres()));
+
+            user.setFavoriteGenres(genres);
+        }
+
+        return userRepository.save(user);
     }
 }

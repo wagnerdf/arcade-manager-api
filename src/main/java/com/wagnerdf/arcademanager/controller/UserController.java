@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
+import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
@@ -118,5 +119,19 @@ public class UserController {
         String email = authentication.getName();
 
         return userService.findByEmail(email);
+    }
+    
+    /**
+    * Editar usuário
+    * EDITAR api / users / {id}
+    */
+    @PutMapping("/me")
+    public ResponseEntity<User> updateProfile(
+            @RequestBody UpdateUserProfileRequest request,
+            Authentication authentication) {
+
+        User updatedUser = userService.updateUserProfile(authentication.getName(), request);
+
+        return ResponseEntity.ok(updatedUser);
     }
 }
