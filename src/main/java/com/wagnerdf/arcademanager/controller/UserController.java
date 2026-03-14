@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
+import com.wagnerdf.arcademanager.dto.UserResponse;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
@@ -114,11 +115,11 @@ public class UserController {
     }
     
     @GetMapping("/me")
-    public User getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
 
-        String email = authentication.getName();
+        User user = userService.findByEmail(authentication.getName());
 
-        return userService.findByEmail(email);
+        return ResponseEntity.ok(userService.mapToResponse(user));
     }
     
     /**
@@ -126,12 +127,12 @@ public class UserController {
     * EDITAR api / users / {id}
     */
     @PutMapping("/me")
-    public ResponseEntity<User> updateProfile(
+    public ResponseEntity<UserResponse> updateProfile(
             @RequestBody UpdateUserProfileRequest request,
             Authentication authentication) {
 
         User updatedUser = userService.updateUserProfile(authentication.getName(), request);
 
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userService.mapToResponse(updatedUser));
     }
 }

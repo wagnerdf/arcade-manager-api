@@ -2,6 +2,7 @@ package com.wagnerdf.arcademanager.service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.HashSet;
 
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
+import com.wagnerdf.arcademanager.dto.UserResponse;
 import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
@@ -186,5 +188,26 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+    
+    public UserResponse mapToResponse(User user) {
+
+        Set<String> genreIds = null;
+
+        if (user.getFavoriteGenres() != null) {
+            genreIds = user.getFavoriteGenres()
+                    .stream()
+                    .map(genre -> genre.getId())
+                    .collect(Collectors.toSet());
+        }
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .favoriteGenres(genreIds)
+                .build();
     }
 }
