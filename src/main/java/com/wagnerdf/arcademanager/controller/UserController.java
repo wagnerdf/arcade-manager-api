@@ -2,6 +2,8 @@ package com.wagnerdf.arcademanager.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,14 +43,14 @@ public class UserController {
     }
 
     /**
-     * Listar todos os usuários cadastrados
+     * Listar usuários com paginação
      * Acesso restrito a administradores
-     * GET /api/users
+     * GET /api/users?page=0&size=10
      */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<Page<UserResponse>> getUsers(Pageable pageable) {
+        Page<UserResponse> users = userService.getUsers(pageable);
         return ResponseEntity.ok(users);
     }
 

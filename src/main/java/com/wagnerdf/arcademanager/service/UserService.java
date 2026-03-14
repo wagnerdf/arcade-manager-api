@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
@@ -301,5 +303,16 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
+    }
+    
+    /**
+     * Retorna usuários paginados.
+     * Utiliza Pageable para limitar quantidade de registros retornados.
+     */
+    public Page<UserResponse> getUsers(Pageable pageable) {
+
+        Page<User> usersPage = userRepository.findAll(pageable);
+
+        return usersPage.map(this::mapToResponse);
     }
 }
