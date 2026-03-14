@@ -28,7 +28,7 @@ public class UserController {
     private final UserRepository userRepository;
 
     /**
-     * Endpoint para registrar um novo usuário
+     * Registrar um novo usuário no sistema
      * POST /api/users/register
      */
     @PostMapping("/register")
@@ -40,7 +40,8 @@ public class UserController {
     }
 
     /**
-     * Listar todos os usuários (somente ADMIN)
+     * Listar todos os usuários cadastrados
+     * Acesso restrito a administradores
      * GET /api/users
      */
     @GetMapping
@@ -51,7 +52,8 @@ public class UserController {
     }
 
     /**
-     * Promover usuário para ADMIN
+     * Promover um usuário para o papel de ADMIN
+     * Ação permitida apenas para administradores
      * PUT /api/users/{id}/promote
      */
     @PutMapping("/{id}/promote")
@@ -70,7 +72,8 @@ public class UserController {
     }
     
     /**
-     * Reverter usuário para USER
+     * Reverter um usuário ADMIN para o papel USER
+     * Ação permitida apenas para administradores
      * PUT /api/users/{id}/demote
      */
     @PutMapping("/{id}/demote")
@@ -89,8 +92,10 @@ public class UserController {
     }
 
     /**
-     * Habilitar ou desabilitar usuário
-     * PUT api / users / {id} /status
+     * Habilitar ou desabilitar um usuário
+     * Alterna o status ativo/inativo da conta
+     * Acesso restrito a administradores
+     * PUT /api/users/{id}/status
      */
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
@@ -102,8 +107,9 @@ public class UserController {
     }
     
     /**
-     * Deletar usuário
-     * DELETE api / users / {id}
+     * Deletar permanentemente um usuário do sistema
+     * Acesso restrito a administradores
+     * DELETE /api/users/{id}
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -114,6 +120,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     
+    /**
+     * Retornar o perfil do usuário autenticado
+     * Utiliza o email presente no token JWT
+     * GET /api/users/me
+     */
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
 
@@ -123,9 +134,10 @@ public class UserController {
     }
     
     /**
-    * Editar usuário
-    * EDITAR api / users / {id}
-    */
+     * Atualizar os dados de perfil do usuário autenticado
+     * Permite editar: nome, telefone, endereço e gêneros favoritos
+     * PUT /api/users/me
+     */
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateProfile(
             @RequestBody UpdateUserProfileRequest request,

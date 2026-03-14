@@ -32,6 +32,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final GenreRepository genreRepository;
 
+    /**
+     * Registra um novo usuário no sistema.
+     * 
+     * Regras aplicadas:
+     * - Email é convertido para lowercase
+     * - Email deve ser único
+     * - Senha é criptografada antes de salvar
+     * - Novo usuário recebe papel USER por padrão
+     * - Conta é criada como ativa
+     */
     public User registerUser(RegisterUserRequest request) {
 
         String email = request.getEmail().toLowerCase();
@@ -54,14 +64,19 @@ public class UserService {
     }
 
     /**
-     * Listar todos os usuários
+     * Retorna a lista de todos os usuários cadastrados no sistema.
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     /**
-     * Promover usuário para ADMIN
+     * Promove um usuário para o papel ADMIN.
+     * 
+     * Regras de segurança:
+     * - Um ADMIN não pode promover a si mesmo
+     * - O usuário deve existir no sistema
+     * - Usuário não pode já possuir papel ADMIN
      */
     public User promoteToAdmin(String userId, String currentAdminId) {
 
@@ -89,7 +104,12 @@ public class UserService {
     }
     
     /**
-     * Demote ADMIN to USER
+     * Reverte um ADMIN para o papel USER.
+     * 
+     * Regras de segurança:
+     * - Um ADMIN não pode remover seu próprio papel
+     * - Usuário deve existir no sistema
+     * - Usuário deve possuir papel ADMIN
      */
     public User demoteToUser(String userId, String currentAdminId) {
 
@@ -116,6 +136,13 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    /**
+     * Alterna o status ativo/inativo de um usuário.
+     * 
+     * Regras aplicadas:
+     * - Um administrador não pode alterar o próprio status
+     * - O status é invertido (ativo → inativo / inativo → ativo)
+     */
     public User toggleUserStatus(String userId) {
 
         User user = userRepository.findById(userId)
@@ -133,6 +160,13 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    /**
+     * Remove permanentemente um usuário do sistema.
+     * 
+     * Regras de segurança:
+     * - Administrador não pode excluir a própria conta
+     * - O último ADMIN do sistema não pode ser removido
+     */
     public void deleteUser(String userId) {
 
         User user = userRepository.findById(userId)
@@ -156,14 +190,29 @@ public class UserService {
 
         userRepository.delete(user);
     }
+    
     /**
-     * buscar usuário pelo email (que vem do JWT)
-    **/
+     * Busca um usuário pelo email.
+     * 
+     * Utilizado principalmente para recuperar o usuário
+     * autenticado através do email presente no token JWT.
+     */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
     
+    /**
+     * Atualiza os dados de perfil do usuário autenticado.
+     * 
+     * Campos que podem ser alterados:
+     * - Nome completo
+     * - Telefone
+     * - Endereço
+     * - Gêneros favoritos
+     * 
+     * Apenas os campos informados na requisição são atualizados.
+     */
     public User updateUserProfile(String email, UpdateUserProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
@@ -191,6 +240,15 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    /**
+     * Converte a entidade User para o DTO UserResponse.
+     * 
+     * Remove campos sensíveis e formata os dados para
+     * retorno seguro na API.
+     * 
+     * Também converte os gêneros favoritos para
+     * GenreResponse (id e name).
+     */
     public UserResponse mapToResponse(User user) {
 
     	Set<GenreResponse> genres = null;
