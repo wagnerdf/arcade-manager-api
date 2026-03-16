@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.CreateGenreRequest;
+import com.wagnerdf.arcademanager.dto.UpdateGenreRequest;
 import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.GenreRepository;
@@ -47,5 +48,26 @@ public class GenreService {
      */
     public List<Genre> getAllGenres() {
         return genreRepository.findAll();
+    }
+    
+    /**
+     * Atualiza o nome de um gênero existente.
+     * 
+     * Regras aplicadas:
+     * - O gênero deve existir no sistema
+     * - O novo nome não pode duplicar outro gênero já cadastrado
+     */
+    public Genre updateGenre(String id, UpdateGenreRequest request) {
+
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Gênero não encontrado", HttpStatus.NOT_FOUND));
+
+        if (genreRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new BusinessException("Já existe um gênero com esse nome", HttpStatus.CONFLICT);
+        }
+
+        genre.setName(request.getName());
+
+        return genreRepository.save(genre);
     }
 }

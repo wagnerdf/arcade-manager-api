@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.CreateGenreRequest;
+import com.wagnerdf.arcademanager.dto.UpdateGenreRequest;
 import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.service.GenreService;
 
@@ -45,5 +46,20 @@ public class GenreController {
         List<Genre> genres = genreService.getAllGenres();
 
         return ResponseEntity.ok(genres);
+    }
+    
+    /**
+     * Atualizar o nome de um gênero existente.
+     * Apenas ADMIN pode realizar esta operação.
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Genre> updateGenre(
+            @PathVariable String id,
+            @RequestBody UpdateGenreRequest request) {
+
+        Genre updatedGenre = genreService.updateGenre(id, request);
+
+        return ResponseEntity.ok(updatedGenre);
     }
 }
