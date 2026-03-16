@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.CreatePlatformRequest;
+import com.wagnerdf.arcademanager.dto.UpdatePlatformRequest;
 import com.wagnerdf.arcademanager.entity.Platform;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.PlatformRepository;
@@ -52,5 +53,31 @@ public class PlatformService {
      */
     public List<Platform> getAllPlatforms() {
         return platformRepository.findAll();
+    }
+    
+    /**
+     * Atualiza os dados de uma plataforma existente.
+     * 
+     * Regras aplicadas:
+     * - A plataforma deve existir
+     * - O novo nome não pode duplicar outra plataforma
+     */
+    public Platform updatePlatform(String id, UpdatePlatformRequest request) {
+
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Plataforma não encontrada", HttpStatus.NOT_FOUND));
+
+        if (platformRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new BusinessException("Já existe uma plataforma com esse nome", HttpStatus.CONFLICT);
+        }
+
+        platform.setName(request.getName());
+        platform.setManufacturer(request.getManufacturer());
+        platform.setReleaseYear(request.getReleaseYear());
+        platform.setUnitsSold(request.getUnitsSold());
+        platform.setDescription(request.getDescription());
+        platform.setImageUrl(request.getImageUrl());
+
+        return platformRepository.save(platform);
     }
 }
