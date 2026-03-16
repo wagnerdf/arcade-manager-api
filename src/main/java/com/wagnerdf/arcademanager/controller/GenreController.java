@@ -1,11 +1,11 @@
 package com.wagnerdf.arcademanager.controller;
 
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.wagnerdf.arcademanager.dto.CreateGenreRequest;
 import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.service.GenreService;
 
@@ -18,8 +18,16 @@ public class GenreController {
 
     private final GenreService genreService;
 
-    @GetMapping
-    public List<Genre> getAllGenres() {
-        return genreService.findAll();
+    /**
+     * Criar novo gênero
+     * Apenas ADMIN
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Genre> createGenre(@RequestBody CreateGenreRequest request) {
+
+        Genre genre = genreService.createGenre(request);
+
+        return new ResponseEntity<>(genre, HttpStatus.CREATED);
     }
 }
