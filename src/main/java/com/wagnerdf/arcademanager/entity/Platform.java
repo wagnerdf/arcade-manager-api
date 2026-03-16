@@ -3,13 +3,12 @@ package com.wagnerdf.arcademanager.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Document(collection = "platforms")
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Document(collection = "platforms")
 public class Platform {
 
     @Id
@@ -18,4 +17,13 @@ public class Platform {
     private String name;
 
     private String manufacturer;
+
+    private Integer releaseYear;
+
+    private Long unitsSold;
+
+    private String description;
+
+    private String imageUrl;
+
 }
