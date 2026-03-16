@@ -80,4 +80,18 @@ public class PlatformService {
 
         return platformRepository.save(platform);
     }
+    
+    /**
+     * Remove uma plataforma do sistema.
+     * 
+     * Regras aplicadas:
+     * - A plataforma deve existir no sistema
+     */
+    public void deletePlatform(String id) {
+
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Plataforma não encontrada", HttpStatus.NOT_FOUND));
+
+        platformRepository.delete(platform);
+    }
 }

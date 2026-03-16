@@ -59,4 +59,17 @@ public class PlatformController {
 
         return ResponseEntity.ok(updatedPlatform);
     }
+    
+    /**
+     * Remove uma plataforma do sistema.
+     * Apenas ADMIN pode realizar esta operação.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deletePlatform(@PathVariable String id) {
+
+        platformService.deletePlatform(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
