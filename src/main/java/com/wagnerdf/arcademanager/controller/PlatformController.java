@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,5 +31,16 @@ public class PlatformController {
         Platform platform = platformService.createPlatform(request);
 
         return new ResponseEntity<>(platform, HttpStatus.CREATED);
+    }
+    
+    /**
+     * Listar todas as plataformas cadastradas.
+     */
+    @GetMapping
+    public ResponseEntity<List<Platform>> getPlatforms() {
+
+        List<Platform> platforms = platformService.getAllPlatforms();
+
+        return ResponseEntity.ok(platforms);
     }
 }

@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +41,16 @@ public class PlatformService {
                 .build();
 
         return platformRepository.save(platform);
+    }
+    
+    /**
+     * Retorna todas as plataformas cadastradas no sistema.
+     * 
+     * Utilizado principalmente para:
+     * - seleção de plataforma ao cadastrar jogos
+     * - exibição da lista de consoles disponíveis
+     */
+    public List<Platform> getAllPlatforms() {
+        return platformRepository.findAll();
     }
 }
