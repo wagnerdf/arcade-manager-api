@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,5 +31,19 @@ public class GenreController {
         Genre genre = genreService.createGenre(request);
 
         return new ResponseEntity<>(genre, HttpStatus.CREATED);
+    }
+    
+    /**
+     * Listar todos os gêneros cadastrados no sistema.
+     * 
+     * Endpoint utilizado para popular seletores de gênero
+     * no cadastro ou edição de preferências do usuário.
+     */
+    @GetMapping
+    public ResponseEntity<List<Genre>> getGenres() {
+
+        List<Genre> genres = genreService.getAllGenres();
+
+        return ResponseEntity.ok(genres);
     }
 }

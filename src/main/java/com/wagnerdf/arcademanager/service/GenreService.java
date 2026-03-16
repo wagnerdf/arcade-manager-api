@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,13 @@ public class GenreService {
 
     private final GenreRepository genreRepository;
 
+    /**
+     * Cria um novo gênero no sistema.
+     * 
+     * Regras aplicadas:
+     * - O nome do gênero deve ser único
+     * - A verificação ignora diferença entre maiúsculas e minúsculas
+     */
     public Genre createGenre(CreateGenreRequest request) {
 
         if (genreRepository.existsByNameIgnoreCase(request.getName())) {
@@ -27,5 +36,16 @@ public class GenreService {
                 .build();
 
         return genreRepository.save(genre);
+    }
+    
+    /**
+     * Retorna todos os gêneros cadastrados no sistema.
+     * 
+     * Utilizado principalmente para:
+     * - seleção de gêneros favoritos do usuário
+     * - associação de jogos a gêneros
+     */
+    public List<Genre> getAllGenres() {
+        return genreRepository.findAll();
     }
 }
