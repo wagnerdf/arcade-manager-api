@@ -62,4 +62,17 @@ public class GenreController {
 
         return ResponseEntity.ok(updatedGenre);
     }
+    
+    /**
+     * Remove um gênero do sistema.
+     * Apenas ADMIN pode realizar esta operação.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteGenre(@PathVariable String id) {
+
+        genreService.deleteGenre(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

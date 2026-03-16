@@ -10,6 +10,7 @@ import com.wagnerdf.arcademanager.dto.UpdateGenreRequest;
 import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.GenreRepository;
+import com.wagnerdf.arcademanager.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class GenreService {
 
     private final GenreRepository genreRepository;
+    private final UserRepository userRepository;
 
     /**
      * Cria um novo gênero no sistema.
@@ -69,5 +71,30 @@ public class GenreService {
         genre.setName(request.getName());
 
         return genreRepository.save(genre);
+    }
+    
+    /**
+     * Remove um gênero do sistema.
+     * 
+     * Regras aplicadas:
+     * - O gênero deve existir
+     * - Não pode ser removido se estiver associado
+     *   aos gêneros favoritos de algum usuário
+     */
+    public void deleteGenre(String id) {
+
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Gênero não encontrado", HttpStatus.NOT_FOUND));
+
+        boolean genreInUse = userRepository.existsByFavoriteGenres_Id(id);
+
+        if (genreInUse) {
+            throw new BusinessException(
+                    "Não é possível excluir um gênero associado a usuários",
+                    HttpStatus.CONFLICT
+            );
+        }
+
+        genreRepository.delete(genre);
     }
 }
