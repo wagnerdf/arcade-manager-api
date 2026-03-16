@@ -1,5 +1,11 @@
 package com.wagnerdf.arcademanager.repository;
 
-public class GameRepository {
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.wagnerdf.arcademanager.entity.Game;
+
+public interface GameRepository extends MongoRepository<Game, String> {
+
+    boolean existsByTitleIgnoreCase(String title);
 
 }

@@ -1,6 +1,6 @@
 package com.wagnerdf.arcademanager.entity;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,11 +21,12 @@ public class Game {
 
     private Platform platform;
 
-    private List<Genre> genres;
+    private Set<Genre> genres;
 
-    private Integer year;
+    private Integer releaseYear;
 
     private String developer;
 
     private String description;
+
 }
