@@ -1,7 +1,9 @@
 package com.wagnerdf.arcademanager.controller;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +32,10 @@ public class UserGameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
+    
     @GetMapping("/me/library")
-    public ResponseEntity<List<UserGameResponse>> getLibrary() {
-        List<UserGameResponse> library = userGameService.getUserLibrary();
+    public ResponseEntity<Page<UserGameResponse>> getLibrary(Pageable pageable) {
+        Page<UserGameResponse> library = userGameService.getUserLibrary(pageable);
         return ResponseEntity.ok(library);
     }
 }

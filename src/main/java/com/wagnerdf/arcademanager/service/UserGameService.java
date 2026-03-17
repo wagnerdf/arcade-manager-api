@@ -1,7 +1,9 @@
 package com.wagnerdf.arcademanager.service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -71,5 +73,26 @@ public class UserGameService {
                     .build();
 
         }).toList();
+    }
+    
+    public Page<UserGameResponse> getUserLibrary(Pageable pageable) {
+
+        User user = userService.getAuthenticatedUser();
+
+        Page<UserGame> userGamesPage = userGameRepository.findByUserId(user.getId(), pageable);
+
+        return userGamesPage.map(userGame -> {
+
+            Game game = gameRepository.findById(userGame.getGameId())
+                    .orElseThrow(() -> new BusinessException("Game not found", HttpStatus.NOT_FOUND));
+
+            return UserGameResponse.builder()
+                    .id(userGame.getId())
+                    .gameTitle(game.getTitle())
+                    .platform(game.getPlatform().getName())
+                    .mediaType(userGame.getMediaType())
+                    .status(userGame.getStatus())
+                    .build();
+        });
     }
 }
