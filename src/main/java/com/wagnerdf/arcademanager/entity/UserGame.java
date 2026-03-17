@@ -18,9 +18,9 @@ public class UserGame {
     @Id
     private String id;
 
-    private User user;
-
-    private Game game;
+    private String userId;
+    
+    private String gameId;
 
     private Platform platform;
 

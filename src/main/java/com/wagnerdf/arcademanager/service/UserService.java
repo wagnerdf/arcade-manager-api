@@ -315,4 +315,14 @@ public class UserService {
 
         return usersPage.map(this::mapToResponse);
     }
+    
+    public User getAuthenticatedUser() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("User not found", HttpStatus.NOT_FOUND));
+    }
 }

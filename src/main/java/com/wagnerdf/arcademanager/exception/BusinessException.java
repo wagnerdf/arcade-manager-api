@@ -3,8 +3,9 @@ package com.wagnerdf.arcademanager.exception;
 import org.springframework.http.HttpStatus;
 
 public class BusinessException extends RuntimeException {
-
-    private final HttpStatus status;
+    private static final long serialVersionUID = 1L;
+    
+	private final HttpStatus status;
 
     public BusinessException(String message, HttpStatus status) {
         super(message);
