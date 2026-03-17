@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -47,5 +49,27 @@ public class UserGameService {
                 .mediaType(saved.getMediaType())
                 .status(saved.getStatus())
                 .build();
+    }
+    
+    public List<UserGameResponse> getUserLibrary() {
+
+        User user = userService.getAuthenticatedUser();
+
+        List<UserGame> userGames = userGameRepository.findByUserId(user.getId());
+
+        return userGames.stream().map(userGame -> {
+
+            Game game = gameRepository.findById(userGame.getGameId())
+                    .orElseThrow(() -> new BusinessException("Game not found", HttpStatus.NOT_FOUND));
+
+            return UserGameResponse.builder()
+                    .id(userGame.getId())
+                    .gameTitle(game.getTitle())
+                    .platform(game.getPlatform().getName())
+                    .mediaType(userGame.getMediaType())
+                    .status(userGame.getStatus())
+                    .build();
+
+        }).toList();
     }
 }
