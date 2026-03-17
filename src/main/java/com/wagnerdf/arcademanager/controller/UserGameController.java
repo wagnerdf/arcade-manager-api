@@ -1,7 +1,6 @@
 package com.wagnerdf.arcademanager.controller;
 
 import org.springframework.data.domain.Pageable;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,13 +25,34 @@ public class UserGameController {
 
     private final UserGameService userGameService;
 
+    /**
+     * Adiciona um jogo à biblioteca do usuário autenticado.
+     *
+     * Fluxo:
+     * 1. Recebe gameId + dados do usuário
+     * 2. Associa ao usuário logado
+     * 3. Salva na coleção user_games
+     *
+     * @param request dados do jogo a ser adicionado
+     * @return UserGameResponse com dados do jogo salvo
+     */
     @PostMapping("/me/library")
     public ResponseEntity<UserGameResponse> addGame(@Valid @RequestBody AddUserGameRequest request) {
         UserGameResponse response = userGameService.addGameToLibrary(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
-    
+    /**
+     * Adiciona um jogo à biblioteca do usuário autenticado.
+     *
+     * Fluxo:
+     * 1. Recebe gameId + dados do usuário
+     * 2. Associa ao usuário logado
+     * 3. Salva na coleção user_games
+     *
+     * @param request dados do jogo a ser adicionado
+     * @return UserGameResponse com dados do jogo salvo
+     */
     @GetMapping("/me/library")
     public ResponseEntity<Page<UserGameResponse>> getLibrary(Pageable pageable) {
         Page<UserGameResponse> library = userGameService.getUserLibrary(pageable);

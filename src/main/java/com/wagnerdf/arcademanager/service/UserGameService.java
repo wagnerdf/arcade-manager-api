@@ -27,6 +27,17 @@ public class UserGameService {
     private final GameRepository gameRepository;
     private final UserService userService;
 
+    /**
+     * Adiciona um jogo à biblioteca do usuário autenticado.
+     *
+     * Regras:
+     * - O jogo deve existir na base (games)
+     * - O usuário é obtido via contexto de autenticação
+     * - Status padrão é BACKLOG caso não informado
+     *
+     * @param request dados do jogo
+     * @return UserGameResponse com dados formatados
+     */
     public UserGameResponse addGameToLibrary(AddUserGameRequest request) {
 
         Game game = gameRepository.findById(request.getGameId())
@@ -53,28 +64,18 @@ public class UserGameService {
                 .build();
     }
     
-    public List<UserGameResponse> getUserLibrary() {
-
-        User user = userService.getAuthenticatedUser();
-
-        List<UserGame> userGames = userGameRepository.findByUserId(user.getId());
-
-        return userGames.stream().map(userGame -> {
-
-            Game game = gameRepository.findById(userGame.getGameId())
-                    .orElseThrow(() -> new BusinessException("Game not found", HttpStatus.NOT_FOUND));
-
-            return UserGameResponse.builder()
-                    .id(userGame.getId())
-                    .gameTitle(game.getTitle())
-                    .platform(game.getPlatform().getName())
-                    .mediaType(userGame.getMediaType())
-                    .status(userGame.getStatus())
-                    .build();
-
-        }).toList();
-    }
-    
+    /**
+     * Retorna a biblioteca de jogos do usuário autenticado com paginação.
+     *
+     * Fluxo:
+     * 1. Busca usuário autenticado
+     * 2. Busca registros em user_games por userId
+     * 3. Para cada registro, busca dados do game
+     * 4. Converte para DTO de resposta
+     *
+     * @param pageable parâmetros de paginação
+     * @return página de UserGameResponse
+     */    
     public Page<UserGameResponse> getUserLibrary(Pageable pageable) {
 
         User user = userService.getAuthenticatedUser();
