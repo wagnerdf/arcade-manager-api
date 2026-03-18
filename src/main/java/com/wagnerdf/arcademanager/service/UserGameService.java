@@ -1,7 +1,6 @@
 package com.wagnerdf.arcademanager.service;
 
 import org.springframework.data.domain.Pageable;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -118,9 +117,6 @@ public class UserGameService {
 
         UserGame userGame = userGameRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
-        
-        System.out.println("userGame.userId: " + userGame.getUserId());
-        System.out.println("auth userId: " + userId);
 
         if (!userGame.getUserId().equals(userId)) {
             throw new RuntimeException("Acesso negado");
@@ -135,5 +131,28 @@ public class UserGameService {
         }
 
         return userGameRepository.save(userGame);
+    }
+    
+    /**
+     * Remove um jogo da biblioteca do usuário.
+     *
+     * Regras:
+     * - O jogo deve existir
+     * - O jogo deve pertencer ao usuário autenticado
+     *
+     * @param id ID do UserGame
+     * @param userId ID do usuário autenticado
+     */
+    public void delete(String id, String userId) {
+
+        UserGame userGame = userGameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+
+        // 🔒 Validação de dono
+        if (!userGame.getUserId().equals(userId)) {
+            throw new RuntimeException("Acesso negado");
+        }
+
+        userGameRepository.delete(userGame);
     }
 }

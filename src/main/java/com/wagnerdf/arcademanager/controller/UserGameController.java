@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user-games")
 @RequiredArgsConstructor
 public class UserGameController {
 
@@ -104,5 +105,37 @@ public class UserGameController {
         UserGame updated = userGameService.update(id, userId, request);
 
         return ResponseEntity.ok(updated);
+    }
+    
+    /**
+     * Remove um jogo da biblioteca do usuário autenticado.
+     *
+     * Endpoint:
+     * DELETE /api/user-games/{id}
+     *
+     * Regras:
+     * - O jogo deve existir
+     * - Deve pertencer ao usuário autenticado
+     *
+     * @param id ID do UserGame
+     * @param authentication Usuário autenticado
+     * @return 204 No Content em caso de sucesso
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        String userId = user.getId();
+
+        userGameService.delete(id, userId);
+
+        return ResponseEntity.noContent().build();
     }
 }
