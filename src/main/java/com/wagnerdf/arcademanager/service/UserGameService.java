@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
+import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
 import com.wagnerdf.arcademanager.entity.Game;
 import com.wagnerdf.arcademanager.entity.User;
@@ -95,5 +96,44 @@ public class UserGameService {
                     .status(userGame.getStatus())
                     .build();
         });
+    }
+    
+    /**
+     * Atualiza os dados de um jogo da biblioteca do usuário.
+     *
+     * Endpoint permite atualização parcial:
+     * - status
+     * - mediaType
+     *
+     * Regras:
+     * - O jogo deve existir
+     * - Deve pertencer ao usuário autenticado
+     *
+     * @param id ID do UserGame
+     * @param userId ID do usuário autenticado
+     * @param request Dados para atualização
+     * @return UserGame atualizado
+     */
+    public UserGame update(String id, String userId, UpdateUserGameRequest request) {
+
+        UserGame userGame = userGameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+        
+        System.out.println("userGame.userId: " + userGame.getUserId());
+        System.out.println("auth userId: " + userId);
+
+        if (!userGame.getUserId().equals(userId)) {
+            throw new RuntimeException("Acesso negado");
+        }
+
+        if (request.getStatus() != null) {
+            userGame.setStatus(request.getStatus());
+        }
+
+        if (request.getMediaType() != null) {
+            userGame.setMediaType(request.getMediaType());
+        }
+
+        return userGameRepository.save(userGame);
     }
 }
