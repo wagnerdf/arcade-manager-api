@@ -17,16 +17,20 @@ public class Game {
     @Id
     private String id;
 
+    private Long externalId;
+
     private String title;
 
-    private Platform platform;
+    // Dados vindos da API
+    private Set<String> platforms;
 
-    private Set<Genre> genres;
+    private Set<String> genres;
 
-    private Integer releaseYear;
+    private String released;
 
     private String developer;
 
     private String description;
 
+    private String backgroundImage;
 }
