@@ -58,7 +58,8 @@ public class UserGameService {
         return UserGameResponse.builder()
                 .id(saved.getId())
                 .gameTitle(game.getTitle())
-                .platform(game.getPlatform().getName())
+                .platforms(game.getPlatforms())
+                .genres(game.getGenres())
                 .mediaType(saved.getMediaType())
                 .status(saved.getStatus())
                 .build();
@@ -90,7 +91,8 @@ public class UserGameService {
             return UserGameResponse.builder()
                     .id(userGame.getId())
                     .gameTitle(game.getTitle())
-                    .platform(game.getPlatform().getName())
+                    .platforms(game.getPlatforms())
+                    .genres(game.getGenres())
                     .mediaType(userGame.getMediaType())
                     .status(userGame.getStatus())
                     .build();
