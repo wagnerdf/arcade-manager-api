@@ -1,5 +1,7 @@
 package com.wagnerdf.arcademanager.dto;
 
+import java.util.Set;
+
 import com.wagnerdf.arcademanager.enums.GameStatus;
 import com.wagnerdf.arcademanager.enums.MediaType;
 
@@ -13,8 +15,12 @@ public class UserGameResponse {
     private String id;
 
     private String gameTitle;
-    private String platform;
+
+    private Set<String> platforms;
+
+    private Set<String> genres;
 
     private MediaType mediaType;
+
     private GameStatus status;
 }
