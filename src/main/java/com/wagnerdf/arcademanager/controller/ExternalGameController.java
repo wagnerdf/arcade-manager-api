@@ -1,7 +1,10 @@
 package com.wagnerdf.arcademanager.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 
+import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.entity.Platform;
 import com.wagnerdf.arcademanager.repository.PlatformRepository;
 import com.wagnerdf.arcademanager.service.RawgService;
@@ -17,7 +20,7 @@ public class ExternalGameController {
     private final PlatformRepository platformRepository;
 
     @GetMapping
-    public String searchGames(
+    public List<RawgGameDTO> searchGames(
             @RequestParam String name,
             @RequestParam(required = false) String platformId) {
 
