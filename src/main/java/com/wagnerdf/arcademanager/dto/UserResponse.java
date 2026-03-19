@@ -21,5 +21,5 @@ public class UserResponse {
 
     private Address address;
 
-    private Set<GenreResponse> favoriteGenres;
+    private Set<String> favoriteGenres;
 }

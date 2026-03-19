@@ -14,15 +14,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
-import com.wagnerdf.arcademanager.dto.GenreResponse;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.dto.UserResponse;
-import com.wagnerdf.arcademanager.entity.Genre;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
-import com.wagnerdf.arcademanager.repository.GenreRepository;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +30,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GenreRepository genreRepository;
 
     /**
      * Registra um novo usuário no sistema.
@@ -233,13 +229,6 @@ public class UserService {
             user.setAddress(request.getAddress());
         }
 
-        if (request.getFavoriteGenres() != null) {
-
-        	Set<Genre> genres = new HashSet<>(genreRepository.findAllById(request.getFavoriteGenres()));
-
-            user.setFavoriteGenres(genres);
-        }
-
         return userRepository.save(user);
     }
     
@@ -254,25 +243,12 @@ public class UserService {
      */
     public UserResponse mapToResponse(User user) {
 
-    	Set<GenreResponse> genres = null;
-
-    	if (user.getFavoriteGenres() != null) {
-            genres = user.getFavoriteGenres()
-                    .stream()
-                    .map(genre -> GenreResponse.builder()
-                            .id(genre.getId())
-                            .name(genre.getName())
-                            .build())
-                    .collect(Collectors.toSet());
-        }
-
         return UserResponse.builder()
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .address(user.getAddress())
-                .favoriteGenres(genres)
                 .build();
     }
     

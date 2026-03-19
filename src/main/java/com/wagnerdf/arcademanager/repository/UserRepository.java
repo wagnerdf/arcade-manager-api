@@ -14,10 +14,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     boolean existsByEmail(String email);
     
     long countByRole(Role role);
-    
-    /**
-     * Pergunta ao Mongo se existe algum usuário usando um referido gênero
-     **/
-    boolean existsByFavoriteGenres_Id(String genreId);
 
 }

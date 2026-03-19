@@ -40,5 +40,5 @@ public class User {
     private Address address;
 
     @DBRef
-    private Set<Genre> favoriteGenres;
+    private Set<String> favoriteGenres;
 }
