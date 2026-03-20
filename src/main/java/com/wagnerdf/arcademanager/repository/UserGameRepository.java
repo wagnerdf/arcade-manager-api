@@ -13,5 +13,7 @@ public interface UserGameRepository extends MongoRepository<UserGame, String> {
     List<UserGame> findByUserId(String userId);
     
     Page<UserGame> findByUserId(String userId, Pageable pageable);
+    
+    boolean existsByUserIdAndGameId(String userId, String gameId);
 
 }

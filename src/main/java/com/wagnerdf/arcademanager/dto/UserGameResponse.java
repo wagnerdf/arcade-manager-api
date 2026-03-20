@@ -19,6 +19,8 @@ public class UserGameResponse {
     private Set<String> platforms;
 
     private Set<String> genres;
+    
+    private Long externalGameId;
 
     private MediaType mediaType;
 

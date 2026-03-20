@@ -45,13 +45,21 @@ public class UserGameService {
 
         User user = userService.getAuthenticatedUser();
 
-        UserGame userGame = new UserGame();
-        userGame.setUserId(user.getId());
-        userGame.setGameId(game.getId());
-        userGame.setMediaType(request.getMediaType());
-        userGame.setStatus(
-                request.getStatus() != null ? request.getStatus() : GameStatus.BACKLOG
-        );
+        // 🚨 evita duplicidade
+        boolean alreadyExists = userGameRepository
+                .existsByUserIdAndGameId(user.getId(), game.getId());
+
+        if (alreadyExists) {
+            throw new BusinessException("Game already in your library", HttpStatus.CONFLICT);
+        }
+
+        UserGame userGame = UserGame.builder()
+                .userId(user.getId())
+                .gameId(game.getId())
+                .externalGameId(game.getExternalId())
+                .mediaType(request.getMediaType())
+                .status(request.getStatus() != null ? request.getStatus() : GameStatus.BACKLOG)
+                .build();
 
         UserGame saved = userGameRepository.save(userGame);
 
@@ -60,6 +68,7 @@ public class UserGameService {
                 .gameTitle(game.getTitle())
                 .platforms(game.getPlatforms())
                 .genres(game.getGenres())
+                .externalGameId(game.getExternalId())
                 .mediaType(saved.getMediaType())
                 .status(saved.getStatus())
                 .build();

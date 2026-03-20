@@ -21,6 +21,8 @@ public class UserGame {
     private String userId;
     
     private String gameId;
+    
+    private Long externalGameId;
 
     private Platform platform;
 
