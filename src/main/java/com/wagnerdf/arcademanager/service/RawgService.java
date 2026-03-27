@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
 
 import com.wagnerdf.arcademanager.dto.RawgGameDTO;
+import com.wagnerdf.arcademanager.integration.rawg.dto.RawgGame;
 import com.wagnerdf.arcademanager.integration.rawg.dto.RawgResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,51 @@ public class RawgService {
                     .build();
 
         }).collect(Collectors.toList());
+    }
+    
+    public RawgGameDTO getGameById(Long externalId) {
+
+        try {
+
+            String url = BASE_URL +
+                    "/" + externalId +
+                    "?key=" + apiKey;
+
+            RawgGame response =
+                    restTemplate.getForObject(url, RawgGame.class);
+
+            if (response == null) {
+                throw new RuntimeException("Game not found on RAWG");
+            }
+
+            Set<String> platforms = response.getPlatforms() != null
+                    ? response.getPlatforms().stream()
+                        .map(p -> p.getPlatform().getName())
+                        .collect(Collectors.toSet())
+                    : Set.of();
+
+            Set<String> genres = response.getGenres() != null
+                    ? response.getGenres().stream()
+                        .map(g -> g.getName())
+                        .collect(Collectors.toSet())
+                    : Set.of();
+
+            return RawgGameDTO.builder()
+                    .externalId(response.getId())
+                    .name(response.getName())
+                    .released(response.getReleased())
+                    .backgroundImage(response.getBackground_image())
+                    .platforms(platforms)
+                    .genres(genres)
+                    .build();
+
+        } catch (HttpClientErrorException.NotFound e) {
+
+            throw new RuntimeException("Game não encontrado na RAWG");
+
+        } catch (HttpClientErrorException e) {
+
+            throw new RuntimeException("Erro ao consultar RAWG: " + e.getStatusCode());
+        }
     }
 }

@@ -47,4 +47,9 @@ public class ExternalGameController {
 
         return "";
     }
+    
+    @GetMapping("/{externalId}")
+    public RawgGameDTO getGameById(@PathVariable Long externalId) {
+        return rawgService.getGameById(externalId);
+    }
 }
