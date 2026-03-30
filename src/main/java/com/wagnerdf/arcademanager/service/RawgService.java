@@ -5,11 +5,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.wagnerdf.arcademanager.dto.RawgGameDTO;
+import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.integration.rawg.dto.RawgGame;
 import com.wagnerdf.arcademanager.integration.rawg.dto.RawgResponse;
 
@@ -28,11 +30,17 @@ public class RawgService {
 
     public List<RawgGameDTO> searchGames(String name, String platformTerm) {
 
-        String url = BASE_URL +
-                "?key=" + apiKey +
-                "&search=" + name +
-                "&search_precise=true";
+    	String searchTerm = name;
 
+    	if (platformTerm != null && !platformTerm.isEmpty()) {
+    	    searchTerm += " " + platformTerm;
+    	}
+
+    	String url = BASE_URL +
+    	        "?key=" + apiKey +
+    	        "&search=" + searchTerm +
+    	        "&search_precise=true";
+    	
         if (platformTerm != null && !platformTerm.isEmpty()) {
             url += "&search=" + name + " " + platformTerm;
         }
@@ -107,7 +115,7 @@ public class RawgService {
 
         } catch (HttpClientErrorException.NotFound e) {
 
-            throw new RuntimeException("Game não encontrado na RAWG");
+        	throw new BusinessException("Game não encontrado na RAWG", HttpStatus.NOT_FOUND);
 
         } catch (HttpClientErrorException e) {
 

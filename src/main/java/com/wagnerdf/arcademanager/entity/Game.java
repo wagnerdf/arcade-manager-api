@@ -33,4 +33,6 @@ public class Game {
     private String description;
 
     private String backgroundImage;
+    
+    private String coverUrl;
 }

@@ -5,8 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
+import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
 import com.wagnerdf.arcademanager.entity.Game;
@@ -26,6 +28,7 @@ public class UserGameService {
     private final UserGameRepository userGameRepository;
     private final GameRepository gameRepository;
     private final UserService userService;
+    private final RawgService rawgService;
 
     /**
      * Adiciona um jogo à biblioteca do usuário autenticado.
@@ -38,14 +41,20 @@ public class UserGameService {
      * @param request dados do jogo
      * @return UserGameResponse com dados formatados
      */
+    @Transactional
     public UserGameResponse addGameToLibrary(AddUserGameRequest request) {
 
-        Game game = gameRepository.findById(request.getGameId())
-                .orElseThrow(() -> new BusinessException("Game not found", HttpStatus.NOT_FOUND));
+        // 🔹 1. Buscar ou criar Game usando externalId
+        Game game = gameRepository.findByExternalId(request.getExternalId())
+                .orElseGet(() -> {
+                    RawgGameDTO rawgGame = rawgService.getGameById(request.getExternalId());
+                    return saveNewGame(rawgGame);
+                });
 
+        // 🔹 2. Usuário autenticado
         User user = userService.getAuthenticatedUser();
 
-        // 🚨 evita duplicidade
+        // 🔹 3. Evitar duplicidade
         boolean alreadyExists = userGameRepository
                 .existsByUserIdAndGameId(user.getId(), game.getId());
 
@@ -53,6 +62,7 @@ public class UserGameService {
             throw new BusinessException("Game already in your library", HttpStatus.CONFLICT);
         }
 
+        // 🔹 4. Criar UserGame
         UserGame userGame = UserGame.builder()
                 .userId(user.getId())
                 .gameId(game.getId())
@@ -63,6 +73,7 @@ public class UserGameService {
 
         UserGame saved = userGameRepository.save(userGame);
 
+        // 🔹 5. Response
         return UserGameResponse.builder()
                 .id(saved.getId())
                 .gameTitle(game.getTitle())
@@ -165,5 +176,44 @@ public class UserGameService {
         }
 
         userGameRepository.delete(userGame);
+    }
+    
+    @Transactional
+    public void addGameToUser(AddUserGameRequest request) {
+
+    	Game game = gameRepository.findByExternalId(request.getExternalId())
+            .orElseGet(() -> {
+                RawgGameDTO rawgGame = rawgService.getGameById(request.getExternalId());
+                return saveNewGame(rawgGame);
+            });
+
+    	User user = userService.getAuthenticatedUser();
+
+        boolean exists = userGameRepository.existsByUserIdAndGameId(user.getId(), game.getId());
+        if (exists) {
+            throw new RuntimeException("Jogo já está na sua biblioteca");
+        }
+
+        GameStatus status = request.getStatus() != null
+                ? request.getStatus()
+                : GameStatus.BACKLOG;
+
+        UserGame userGame = new UserGame();
+        userGame.setUserId(user.getId());
+        userGame.setGameId(game.getId());
+        userGame.setStatus(status);
+        userGame.setMediaType(request.getMediaType());
+
+        userGameRepository.save(userGame);
+    }
+       
+    private Game saveNewGame(RawgGameDTO dto) {
+
+        Game game = new Game();
+        game.setExternalId(dto.getExternalId());
+        game.setTitle(dto.getName());
+        game.setCoverUrl(dto.getBackgroundImage());
+
+        return gameRepository.save(game);
     }
 }

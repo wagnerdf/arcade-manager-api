@@ -9,12 +9,11 @@ import lombok.Data;
 @Data
 public class AddUserGameRequest {
 
-	@NotNull
-	private String gameId;
-	
-	@NotNull
-	private MediaType mediaType;
-	
-	private GameStatus status;
+    @NotNull
+    private Long externalId;
 
+    @NotNull
+    private MediaType mediaType;
+
+    private GameStatus status;
 }

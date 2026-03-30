@@ -23,7 +23,6 @@ import com.wagnerdf.arcademanager.entity.UserGame;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 import com.wagnerdf.arcademanager.service.UserGameService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -47,9 +46,11 @@ public class UserGameController {
      * @return UserGameResponse com dados do jogo salvo
      */
     @PostMapping("/me/library")
-    public ResponseEntity<UserGameResponse> addGame(@Valid @RequestBody AddUserGameRequest request) {
-        UserGameResponse response = userGameService.addGameToLibrary(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<Void> addGame(@RequestBody AddUserGameRequest request) {
+
+        userGameService.addGameToUser(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     
     /**
@@ -138,4 +139,5 @@ public class UserGameController {
 
         return ResponseEntity.noContent().build();
     }
+    
 }
