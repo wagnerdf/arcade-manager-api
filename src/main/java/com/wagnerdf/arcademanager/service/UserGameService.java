@@ -166,12 +166,13 @@ public class UserGameService {
      * @param id ID do UserGame
      * @param userId ID do usuário autenticado
      */
+    @Transactional
     public void delete(String id, String userId) {
 
         UserGame userGame = userGameRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
 
-        // 🔒 Validação de dono
+        // 🔒 Validação se pertence ao usuário
         if (!userGame.getUserId().equals(userId)) {
             throw new RuntimeException("Acesso negado");
         }
