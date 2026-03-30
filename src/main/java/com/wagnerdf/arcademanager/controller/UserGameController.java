@@ -101,9 +101,7 @@ public class UserGameController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        String userId = user.getId();
-
-        UserGame updated = userGameService.update(id, userId, request);
+        UserGame updated = userGameService.update(id, user.getId(), request);
 
         return ResponseEntity.ok(updated);
     }
@@ -138,6 +136,5 @@ public class UserGameController {
         userGameService.delete(id, userId);
 
         return ResponseEntity.noContent().build();
-    }
-    
+    }    
 }

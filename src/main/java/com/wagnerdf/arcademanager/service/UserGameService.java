@@ -135,6 +135,7 @@ public class UserGameService {
      * @param request Dados para atualização
      * @return UserGame atualizado
      */
+    @Transactional
     public UserGame update(String id, String userId, UpdateUserGameRequest request) {
 
         UserGame userGame = userGameRepository.findById(id)
