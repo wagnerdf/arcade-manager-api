@@ -25,9 +25,9 @@ public class PlatformController {
      * Criar uma nova plataforma no sistema.
      * Apenas ADMIN pode realizar esta operação.
      */
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Platform> createPlatform(@RequestBody CreatePlatformRequest request) {
+    public ResponseEntity<Platform> createPlatform(@ModelAttribute CreatePlatformRequest request) {
 
         Platform platform = platformService.createPlatform(request);
 

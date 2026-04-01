@@ -24,6 +24,6 @@ public class Platform {
 
     private String description;
 
-    private String imageUrl;
+    private String imageName;
 
 }

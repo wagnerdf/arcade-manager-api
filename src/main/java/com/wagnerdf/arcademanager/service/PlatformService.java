@@ -1,9 +1,16 @@
 package com.wagnerdf.arcademanager.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wagnerdf.arcademanager.dto.CreatePlatformRequest;
 import com.wagnerdf.arcademanager.dto.UpdatePlatformRequest;
@@ -31,6 +38,12 @@ public class PlatformService {
         if (platformRepository.existsByNameIgnoreCase(request.getName())) {
             throw new BusinessException("Plataforma já cadastrada", HttpStatus.CONFLICT);
         }
+        
+        String fileName = null;
+
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            fileName = saveImage(request.getImage());
+        }
 
         Platform platform = Platform.builder()
                 .name(request.getName())
@@ -38,7 +51,7 @@ public class PlatformService {
                 .releaseYear(request.getReleaseYear())
                 .unitsSold(request.getUnitsSold())
                 .description(request.getDescription())
-                .imageUrl(request.getImageUrl())
+                .imageName(fileName)
                 .build();
 
         return platformRepository.save(platform);
@@ -76,7 +89,7 @@ public class PlatformService {
         platform.setReleaseYear(request.getReleaseYear());
         platform.setUnitsSold(request.getUnitsSold());
         platform.setDescription(request.getDescription());
-        platform.setImageUrl(request.getImageUrl());
+        // platform.setImageUrl(request.getImageUrl());
 
         return platformRepository.save(platform);
     }
@@ -93,5 +106,42 @@ public class PlatformService {
                 .orElseThrow(() -> new BusinessException("Plataforma não encontrada", HttpStatus.NOT_FOUND));
 
         platformRepository.delete(platform);
+    }
+    
+    private String saveImage(MultipartFile file) {
+
+    	String uploadDir = System.getProperty("user.dir") + "/uploads/platform/";
+
+        File directory = new File(uploadDir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        String originalName = file.getOriginalFilename();
+
+        if (originalName == null) {
+            throw new BusinessException("Nome do arquivo inválido", HttpStatus.BAD_REQUEST);
+        }
+
+        String fileName = UUID.randomUUID() + "_" + originalName;
+
+        try {
+            file.transferTo(new File(directory, fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BusinessException("Erro ao salvar imagem: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return fileName;
+    }
+    
+    @Configuration
+    public class WebConfig implements WebMvcConfigurer {
+
+        @Override
+        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            registry.addResourceHandler("/images/platform/**")
+                    .addResourceLocations("file:uploads/platform/");
+        }
     }
 }
