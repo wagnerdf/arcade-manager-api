@@ -49,11 +49,11 @@ public class PlatformController {
      * Atualizar uma plataforma existente.
      * Apenas ADMIN pode realizar esta operação.
      */
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Platform> updatePlatform(
             @PathVariable String id,
-            @RequestBody UpdatePlatformRequest request) {
+            @ModelAttribute UpdatePlatformRequest request) {
 
         Platform updatedPlatform = platformService.updatePlatform(id, request);
 

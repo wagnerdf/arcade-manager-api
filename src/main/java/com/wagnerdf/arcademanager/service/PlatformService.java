@@ -80,7 +80,8 @@ public class PlatformService {
         Platform platform = platformRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Plataforma não encontrada", HttpStatus.NOT_FOUND));
 
-        if (platformRepository.existsByNameIgnoreCase(request.getName())) {
+        if (platformRepository.existsByNameIgnoreCase(request.getName())
+        		&& !platform.getName().equalsIgnoreCase(request.getName())) {
             throw new BusinessException("Já existe uma plataforma com esse nome", HttpStatus.CONFLICT);
         }
 
@@ -89,7 +90,17 @@ public class PlatformService {
         platform.setReleaseYear(request.getReleaseYear());
         platform.setUnitsSold(request.getUnitsSold());
         platform.setDescription(request.getDescription());
-        // platform.setImageUrl(request.getImageUrl());
+        
+        // 🔥 TRATAMENTO DA IMAGEM
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+
+            // deletar imagem antiga
+            deleteImage(platform.getImageName());
+
+            // salvar nova
+            String newImage = saveImage(request.getImage());
+            platform.setImageName(newImage);
+        }
 
         return platformRepository.save(platform);
     }
@@ -142,6 +153,19 @@ public class PlatformService {
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             registry.addResourceHandler("/images/platform/**")
                     .addResourceLocations("file:uploads/platform/");
+        }
+    }
+    
+    private void deleteImage(String imageName) {
+
+        if (imageName == null) return;
+
+        String uploadDir = System.getProperty("user.dir") + "/uploads/platform/";
+
+        File file = new File(uploadDir + imageName);
+
+        if (file.exists()) {
+            file.delete();
         }
     }
 }
