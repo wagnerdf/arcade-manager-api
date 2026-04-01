@@ -116,6 +116,10 @@ public class PlatformService {
         Platform platform = platformRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Plataforma não encontrada", HttpStatus.NOT_FOUND));
 
+        // 🔥 DELETA IMAGEM ANTES
+        deleteImage(platform.getImageName());
+
+        // 🔥 DELETA DO BANCO
         platformRepository.delete(platform);
     }
     
@@ -165,7 +169,11 @@ public class PlatformService {
         File file = new File(uploadDir + imageName);
 
         if (file.exists()) {
-            file.delete();
+            boolean deleted = file.delete();
+
+            if (!deleted) {
+                System.out.println("Não conseguiu deletar imagem: " + imageName);
+            }
         }
     }
 }
