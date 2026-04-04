@@ -1,9 +1,6 @@
 package com.wagnerdf.arcademanager.service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.HashSet;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
+import com.wagnerdf.arcademanager.dto.UpdateAddressRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.dto.UserResponse;
+import com.wagnerdf.arcademanager.entity.Address;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
@@ -300,5 +299,32 @@ public class UserService {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("User not found", HttpStatus.NOT_FOUND));
+    }
+    
+    /**
+     * Atualiza o endereço do usuário autenticado.
+     *
+     * Regras:
+     * - Usuário deve existir
+     * - Endereço é sobrescrito completamente
+     * - Apenas usuários autenticados podem atualizar seu próprio endereço
+     */
+    public User updateAddress(String email, UpdateAddressRequest request) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+
+        user.setAddress(
+            Address.builder()
+                .street(request.getStreet())
+                .number(request.getNumber())
+                .city(request.getCity())
+                .state(request.getState())
+                .zipCode(request.getZipCode())
+                .country(request.getCountry())
+                .build()
+        );
+
+        return userRepository.save(user);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
+import com.wagnerdf.arcademanager.dto.UpdateAddressRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
 import com.wagnerdf.arcademanager.dto.UserResponse;
 import com.wagnerdf.arcademanager.entity.User;
@@ -161,5 +162,23 @@ public class UserController {
         userService.changePassword(authentication.getName(), request);
 
         return ResponseEntity.noContent().build();
+    }
+    
+    /**
+     * Atualizar o endereço do usuário autenticado
+     * 
+     * Permite alterar todos os dados de endereço do usuário.
+     * O endereço é sobrescrito completamente.
+     * 
+     * PUT /api/users/me/address
+     */
+    @PutMapping("/me/address")
+    public ResponseEntity<UserResponse> updateAddress(
+            @RequestBody UpdateAddressRequest request,
+            Authentication authentication) {
+
+        User updatedUser = userService.updateAddress(authentication.getName(), request);
+
+        return ResponseEntity.ok(userService.mapToResponse(updatedUser));
     }
 }
