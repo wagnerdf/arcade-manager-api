@@ -180,6 +180,25 @@ public class UserGameService {
         userGameRepository.delete(userGame);
     }
     
+    /**
+     * Adiciona um jogo à biblioteca do usuário autenticado.
+     *
+     * Regras:
+     * - Busca o jogo pelo externalId no banco local
+     * - Caso não exista, consulta a API externa (RAWG) e salva o jogo
+     * - Usuário deve estar autenticado
+     * - Não permite adicionar o mesmo jogo duas vezes para o mesmo usuário
+     * - Caso o status não seja informado, define como BACKLOG por padrão
+     * 
+     * Fluxo:
+     * 1. Busca ou cria o jogo
+     * 2. Recupera o usuário autenticado
+     * 3. Verifica duplicidade na biblioteca
+     * 4. Cria o vínculo UserGame
+     * 5. Salva no banco
+     *
+     * @param request dados do jogo a ser adicionado à biblioteca do usuário
+     */
     @Transactional
     public void addGameToUser(AddUserGameRequest request) {
 
@@ -209,6 +228,13 @@ public class UserGameService {
         userGameRepository.save(userGame);
     }
        
+    /**
+     * Salva um novo jogo no banco de dados a partir dos dados
+     * retornados pela API externa (RAWG).
+     *
+     * @param dto dados do jogo obtidos da API externa
+     * @return entidade Game persistida no banco
+     */
     private Game saveNewGame(RawgGameDTO dto) {
 
         Game game = new Game();
