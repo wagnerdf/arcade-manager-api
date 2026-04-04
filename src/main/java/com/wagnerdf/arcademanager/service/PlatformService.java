@@ -123,6 +123,17 @@ public class PlatformService {
         platformRepository.delete(platform);
     }
     
+    /**
+     * Salva uma imagem no diretório local do servidor.
+     *
+     * Regras:
+     * - Cria o diretório caso não exista
+     * - Gera um nome único para evitar conflitos
+     * - Lança exceção em caso de erro no salvamento
+     *
+     * @param file arquivo enviado na requisição
+     * @return nome do arquivo salvo
+     */
     private String saveImage(MultipartFile file) {
 
     	String uploadDir = System.getProperty("user.dir") + "/uploads/platform/";
@@ -160,6 +171,16 @@ public class PlatformService {
         }
     }
     
+    /**
+     * Remove uma imagem do diretório local do servidor.
+     *
+     * Regras:
+     * - Não executa ação caso o nome da imagem seja nulo
+     * - Verifica se o arquivo existe antes de deletar
+     * - Em caso de falha, registra mensagem no console
+     *
+     * @param imageName nome do arquivo a ser removido
+     */
     private void deleteImage(String imageName) {
 
         if (imageName == null) return;
