@@ -302,28 +302,50 @@ public class UserService {
     }
     
     /**
-     * Atualiza o endereço do usuário autenticado.
+     * Atualiza parcialmente o endereço do usuário autenticado.
      *
      * Regras:
      * - Usuário deve existir
-     * - Endereço é sobrescrito completamente
-     * - Apenas usuários autenticados podem atualizar seu próprio endereço
+     * - Apenas campos informados são atualizaos (PATCH behavior)
+     * - Caso o usuário não possua endereço, um novo e criado
      */
     public User updateAddress(String email, UpdateAddressRequest request) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
-        user.setAddress(
-            Address.builder()
-                .street(request.getStreet())
-                .number(request.getNumber())
-                .city(request.getCity())
-                .state(request.getState())
-                .zipCode(request.getZipCode())
-                .country(request.getCountry())
-                .build()
-        );
+     // Se não existir endereço, cria um novo
+        if (user.getAddress() == null) {
+            user.setAddress(new Address());
+        }
+
+        Address address = user.getAddress();
+
+        if (request.getStreet() != null) {
+            address.setStreet(request.getStreet());
+        }
+
+        if (request.getNumber() != null) {
+            address.setNumber(request.getNumber());
+        }
+
+        if (request.getCity() != null) {
+            address.setCity(request.getCity());
+        }
+
+        if (request.getState() != null) {
+            address.setState(request.getState());
+        }
+
+        if (request.getZipCode() != null) {
+            address.setZipCode(request.getZipCode());
+        }
+
+        if (request.getCountry() != null) {
+            address.setCountry(request.getCountry());
+        }
+
+        user.setAddress(address);
 
         return userRepository.save(user);
     }
