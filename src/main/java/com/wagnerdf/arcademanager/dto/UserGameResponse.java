@@ -25,4 +25,7 @@ public class UserGameResponse {
     private MediaType mediaType;
 
     private GameStatus status;
+    
+    private String statusDescription;
+    
 }

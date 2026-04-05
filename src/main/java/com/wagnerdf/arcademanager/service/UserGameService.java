@@ -115,6 +115,7 @@ public class UserGameService {
                     .genres(game.getGenres())
                     .mediaType(userGame.getMediaType())
                     .status(userGame.getStatus())
+                    .statusDescription(userGame.getStatus().getDescription())
                     .build();
         });
     }
