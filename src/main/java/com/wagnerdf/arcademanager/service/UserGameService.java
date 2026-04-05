@@ -2,6 +2,8 @@ package com.wagnerdf.arcademanager.service;
 
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
 import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
+import com.wagnerdf.arcademanager.dto.UserDashboardResponse;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
 import com.wagnerdf.arcademanager.entity.Game;
 import com.wagnerdf.arcademanager.entity.User;
@@ -290,5 +293,47 @@ public class UserGameService {
         userGameRepository.save(userGame);
     }
     
+    /**
+     * Retorna o resumo da biblioteca de jogos de um usuário.
+     *
+     * Regras de negócio:
+     * - Busca todos os jogos associados ao usuário
+     * - Calcula o total de jogos
+     * - Agrupa os jogos por status (COMPLETED, PLAYING, BACKLOG, WISHLIST)
+     *
+     * @param userId ID do usuário autenticado
+     *
+     * @return objeto contendo as estatísticas da biblioteca do usuário
+     */
+    public UserDashboardResponse getUserDashboard(String userId) {
+
+        List<UserGame> userGames = userGameRepository.findByUserId(userId);
+
+        long total = userGames.size();
+
+        long completed = userGames.stream()
+            .filter(g -> g.getStatus() == GameStatus.COMPLETED)
+            .count();
+
+        long playing = userGames.stream()
+            .filter(g -> g.getStatus() == GameStatus.PLAYING)
+            .count();
+
+        long backlog = userGames.stream()
+            .filter(g -> g.getStatus() == GameStatus.BACKLOG)
+            .count();
+
+        long wishlist = userGames.stream()
+            .filter(g -> g.getStatus() == GameStatus.WISHLIST)
+            .count();
+
+        return UserDashboardResponse.builder()
+            .totalGames(total)
+            .completed(completed)
+            .playing(playing)
+            .backlog(backlog)
+            .wishlist(wishlist)
+            .build();
+    }
     
 }

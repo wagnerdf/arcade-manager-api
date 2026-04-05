@@ -12,10 +12,12 @@ import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateAddressRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
+import com.wagnerdf.arcademanager.dto.UserDashboardResponse;
 import com.wagnerdf.arcademanager.dto.UserResponse;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
+import com.wagnerdf.arcademanager.service.UserGameService;
 import com.wagnerdf.arcademanager.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class UserController {
     private final UserService userService;
     
     private final UserRepository userRepository;
+    
+    private final UserGameService userGameService;
 
     /**
      * Registrar um novo usuário no sistema
@@ -180,5 +184,38 @@ public class UserController {
         User updatedUser = userService.updateAddress(authentication.getName(), request);
 
         return ResponseEntity.ok(userService.mapToResponse(updatedUser));
+    }
+    
+    /**
+     * Endpoint responsável por retornar o resumo da biblioteca do usuário autenticado.
+     *
+     * O dashboard apresenta a quantidade total de jogos e a distribuição por status,
+     * como jogos finalizados, em andamento, backlog e lista de desejos.
+     *
+     * Fluxo:
+     * - Recupera o usuário autenticado a partir do contexto de segurança (Spring Security)
+     * - Busca o usuário na base de dados
+     * - Consulta os jogos do usuário e calcula as estatísticas
+     *
+     * @param authentication objeto de autenticação do Spring Security
+     *
+     * @return ResponseEntity contendo o resumo da biblioteca do usuário
+     *
+     * @throws BusinessException com status NOT_FOUND caso o usuário não seja encontrado
+     */
+    @GetMapping("/me/dashboard")
+    public ResponseEntity<UserDashboardResponse> getDashboard(Authentication authentication) {
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new BusinessException(
+                "User not found",
+                HttpStatus.NOT_FOUND
+            ));
+
+        UserDashboardResponse response = userGameService.getUserDashboard(user.getId());
+
+        return ResponseEntity.ok(response);
     }
 }
