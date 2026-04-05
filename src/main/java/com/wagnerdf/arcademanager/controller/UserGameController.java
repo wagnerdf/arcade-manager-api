@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
+import com.wagnerdf.arcademanager.dto.UpdateUserGameStatusRequest;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.entity.UserGame;
+import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 import com.wagnerdf.arcademanager.service.UserGameService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -134,5 +137,40 @@ public class UserGameController {
         userGameService.delete(id, user.getId());
 
         return ResponseEntity.noContent().build();
-    }    
+    }
+    
+    /**
+     * Endpoint responsável por atualizar o status de um jogo na biblioteca do usuário autenticado.
+     *
+     * Recebe o ID do UserGame e o novo status, validando se o usuário possui permissão
+     * para realizar a alteração.
+     *
+     * @param id ID do UserGame
+     * @param request DTO contendo o novo status
+     * @param authentication objeto de autenticação do Spring Security
+     *
+     * @return ResponseEntity sem conteúdo (204 No Content) em caso de sucesso
+     */
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable String id,
+            @RequestBody @Valid UpdateUserGameStatusRequest request,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new BusinessException(
+                "User not found",
+                HttpStatus.NOT_FOUND
+            ));
+
+        userGameService.updateGameStatus(
+            id,
+            request.getStatus(),
+            user.getId()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }

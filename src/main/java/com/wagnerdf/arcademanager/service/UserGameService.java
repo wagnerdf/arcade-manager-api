@@ -244,4 +244,50 @@ public class UserGameService {
 
         return gameRepository.save(game);
     }
+    
+    /**
+     * Atualiza o status de um jogo na biblioteca do usuário.
+     *
+     * Regras de negócio:
+     * - O registro UserGame deve existir na base de dados.
+     * - Apenas o usuário dono do registro pode atualizar o status.
+     * - (Opcional) Pode validar transições de status inválidas.
+     *
+     * @param userGameId ID do registro UserGame a ser atualizado
+     * @param newStatus novo status a ser atribuído ao jogo
+     * @param userId ID do usuário autenticado (referência ao campo userId do UserGame)
+     *
+     * @throws BusinessException com status NOT_FOUND caso o UserGame não seja encontrado
+     * @throws BusinessException com status FORBIDDEN caso o usuário não seja o dono do registro
+     * @throws BusinessException com status BAD_REQUEST caso a transição de status seja inválida (se implementado)
+     */
+    @Transactional
+    public void updateGameStatus(String userGameId, GameStatus newStatus, String userId) {
+
+    	UserGame userGame = userGameRepository.findById(userGameId)
+    			.orElseThrow(() -> new BusinessException(
+    				    "Jogo de usuário não encontrado com o ID especificado.: " + userGameId,
+    				    HttpStatus.NOT_FOUND
+    				));
+
+    	// valida dono
+    	if (!userGame.getUserId().equals(userId)) {
+    	    throw new BusinessException(
+    	        "Você não tem permissão para atualizar este jogo.",
+    	        HttpStatus.FORBIDDEN
+    	    );
+    	}
+
+        // validar transição
+        GameStatus currentStatus = userGame.getStatus();
+
+        if (currentStatus == GameStatus.COMPLETED && newStatus == GameStatus.PLAYING) {
+            throw new IllegalStateException("Não é possivel voltar de COMPLETED para PLAYING");
+        }
+
+        userGame.setStatus(newStatus);
+        userGameRepository.save(userGame);
+    }
+    
+    
 }
