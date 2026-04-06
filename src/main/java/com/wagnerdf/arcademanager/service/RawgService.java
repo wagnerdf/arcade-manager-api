@@ -17,6 +17,16 @@ import com.wagnerdf.arcademanager.integration.rawg.dto.RawgResponse;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Serviço responsável pela integração com a API externa RAWG.
+ *
+ * Este serviço realiza chamadas HTTP para a API pública RAWG,
+ * tratando as respostas e convertendo os dados para DTOs internos
+ * utilizados pela aplicação.
+ *
+ * Também centraliza o tratamento de erros relacionados à API externa,
+ * garantindo que o restante do sistema não dependa diretamente da RAWG.
+ */
 @Service
 @RequiredArgsConstructor
 public class RawgService {
@@ -28,6 +38,21 @@ public class RawgService {
 
     private static final String BASE_URL = "https://api.rawg.io/api/games";
 
+    /**
+     * Realiza a busca de jogos na API RAWG com base no nome e plataforma.
+     *
+     * Este método monta dinamicamente a URL de consulta, combinando o nome
+     * do jogo com o termo da plataforma (quando informado), para melhorar
+     * a precisão dos resultados retornados.
+     *
+     * Os dados retornados pela API são transformados em {@link RawgGameDTO},
+     * incluindo informações como nome, data de lançamento, imagem,
+     * plataformas e gêneros.
+     *
+     * @param name Nome do jogo a ser pesquisado
+     * @param platformTerm Termo da plataforma (ex: "pc", "playstation"), pode ser vazio
+     * @return Lista de jogos encontrados convertidos em DTOs
+     */
     public List<RawgGameDTO> searchGames(String name, String platformTerm) {
 
     	String searchTerm = name;
@@ -77,6 +102,23 @@ public class RawgService {
         }).collect(Collectors.toList());
     }
     
+    /**
+     * Busca os detalhes de um jogo específico na API RAWG.
+     *
+     * Este método consulta a API externa utilizando o ID do jogo e retorna
+     * informações detalhadas convertidas em {@link RawgGameDTO}.
+     *
+     * Inclui tratamento de erros para cenários como:
+     * 
+     *   Jogo não encontrado (404)
+     *   Erros genéricos da API
+     *
+     * @param externalId ID do jogo na API RAWG
+     * @return Dados detalhados do jogo
+     *
+     * @throws BusinessException Caso o jogo não seja encontrado na API externa
+     * @throws RuntimeException Para outros erros de comunicação com a API
+     */
     public RawgGameDTO getGameById(Long externalId) {
 
         try {
