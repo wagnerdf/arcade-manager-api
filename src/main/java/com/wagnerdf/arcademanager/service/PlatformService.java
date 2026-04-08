@@ -161,9 +161,27 @@ public class PlatformService {
         return fileName;
     }
     
+    /**
+     * Configuração para disponibilizar imagens de plataformas via HTTP.
+     *
+     * Mapeamento:
+     * - URL: /images/platform/**
+     * - Diretório local: uploads/platform/
+     *
+     * Exemplo:
+     * Arquivo salvo em: uploads/platform/abc.png
+     * Acesso via: http://localhost:8080/images/platform/abc.png
+     *
+     * Usado para permitir que o frontend acesse imagens salvas localmente
+     * sem necessidade de serviços externos.
+     */
     @Configuration
     public class WebConfig implements WebMvcConfigurer {
 
+    	 /**
+         * Registra o handler responsável por servir arquivos estáticos
+         * do diretório de imagens de plataformas.
+         */
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             registry.addResourceHandler("/images/platform/**")
