@@ -22,6 +22,16 @@ public class AuthController {
     @Autowired
     private JwtService jwtService;
 
+    /**
+     * Realiza a autenticação do usuário e gera um token JWT.
+     *
+     * Este endpoint valida as credenciais (email e senha) utilizando o
+     * AuthenticationManager do Spring Security. Em caso de sucesso,
+     * um token JWT é gerado e retornado ao cliente.
+     *
+     * @param request Objeto contendo email e senha do usuário
+     * @return AuthResponse contendo o token JWT gerado
+     */
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
 
@@ -37,6 +47,16 @@ public class AuthController {
         return new AuthResponse(token);
     }
     
+    /**
+     * Retorna os dados do usuário autenticado.
+     *
+     * Este endpoint utiliza o contexto de segurança do Spring para obter
+     * o usuário atualmente autenticado e retornar suas informações básicas,
+     * como email e role.
+     *
+     * @param authentication Objeto de autenticação injetado automaticamente pelo Spring
+     * @return MeResponse contendo email e role do usuário autenticado
+     */
     @GetMapping("/me")
     public MeResponse getCurrentUser(Authentication authentication) {
 
