@@ -11,6 +11,20 @@ import com.wagnerdf.arcademanager.repository.UserRepository;
 @Configuration
 public class DatabaseDebugRunner {
 
+    /**
+     * Executa rotinas de verificação e inicialização do banco de dados na subida da aplicação.
+     *
+     * Este runner é responsável por:
+     * - Verificar se existem roles cadastradas
+     * - Criar roles padrão (ADMIN e USER) caso não existam
+     * - Exibir informações de debug no console (roles e total de usuários)
+     *
+     * Útil para ambiente de desenvolvimento e validação inicial do sistema.
+     *
+     * @param roleRepository Repositório de roles
+     * @param userRepository Repositório de usuários
+     * @return CommandLineRunner executado na inicialização da aplicação
+     */
     @Bean
     CommandLineRunner debugDatabase(RoleRepository roleRepository, UserRepository userRepository) {
         return args -> {
