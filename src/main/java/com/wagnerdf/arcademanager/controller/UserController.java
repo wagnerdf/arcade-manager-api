@@ -20,6 +20,7 @@ import com.wagnerdf.arcademanager.repository.UserRepository;
 import com.wagnerdf.arcademanager.service.UserGameService;
 import com.wagnerdf.arcademanager.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,7 +39,7 @@ public class UserController {
      * POST /api/users/register
      */
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
+    public ResponseEntity<User> registerUser(@Valid @RequestBody RegisterUserRequest request) {
 
         User createdUser = userService.registerUser(request);
 
@@ -146,7 +147,7 @@ public class UserController {
      */
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateProfile(
-            @RequestBody UpdateUserProfileRequest request,
+    		@Valid @RequestBody UpdateUserProfileRequest request,
             Authentication authentication) {
 
         User updatedUser = userService.updateUserProfile(authentication.getName(), request);
@@ -160,7 +161,7 @@ public class UserController {
      */
     @PutMapping("/me/password")
     public ResponseEntity<Void> changePassword(
-            @RequestBody ChangePasswordRequest request,
+    		@Valid @RequestBody ChangePasswordRequest request,
             Authentication authentication) {
 
         userService.changePassword(authentication.getName(), request);
@@ -178,7 +179,7 @@ public class UserController {
      */
     @PutMapping("/me/address")
     public ResponseEntity<UserResponse> updateAddress(
-            @RequestBody UpdateAddressRequest request,
+    		@Valid @RequestBody UpdateAddressRequest request,
             Authentication authentication) {
 
         User updatedUser = userService.updateAddress(authentication.getName(), request);

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.security.JwtService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,7 +34,7 @@ public class AuthController {
      * @return AuthResponse contendo o token JWT gerado
      */
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
