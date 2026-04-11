@@ -1,12 +1,15 @@
 package com.wagnerdf.arcademanager.exception;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.ErrorResponse;
+import com.wagnerdf.arcademanager.dto.ValidationError;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -45,6 +48,44 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(status).body(error);
+    }
+
+    /**
+     * Trata exceções de validação de campos (@Valid).
+     *
+     * Retorna uma lista estruturada contendo os campos inválidos
+     * e suas respectivas mensagens de erro.
+     *
+     * @param ex Exceção de validação lançada pelo Spring
+     * @param request Requisição HTTP atual
+     * @return ResponseEntity contendo ErrorResponse com lista de erros
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<ValidationError> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> new ValidationError(
+                        error.getField(),
+                        error.getDefaultMessage()
+                ))
+                .toList();
+
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.name())
+                .message("Validation error")
+                .path(request.getRequestURI())
+                .errors(errors)
+                .build();
+
+        return ResponseEntity.status(status).body(response);
     }
 
     /**

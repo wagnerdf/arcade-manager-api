@@ -1,6 +1,7 @@
 package com.wagnerdf.arcademanager.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;
@@ -40,4 +41,6 @@ public class ErrorResponse {
      * Caminho da requisição que gerou o erro.
      */
     private String path;
+    
+    private List<ValidationError> errors;
 }
