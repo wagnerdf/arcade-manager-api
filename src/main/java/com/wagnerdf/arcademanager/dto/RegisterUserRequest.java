@@ -35,4 +35,7 @@ public class RegisterUserRequest {
 
 	@NotEmpty(message = "At least one favorite genre is required")
     private Set<String> favoriteGenres;
+	
+	@NotBlank(message = "Confirm password is required")
+	private String confirmPassword;
 }

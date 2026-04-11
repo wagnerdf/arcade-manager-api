@@ -43,9 +43,13 @@ public class UserService {
     public User registerUser(RegisterUserRequest request) {
 
         String email = request.getEmail().toLowerCase();
-
+        
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("As senhas não coincidem.", HttpStatus.BAD_REQUEST);
+        }
+        
         if (userRepository.existsByEmail(email)) {
-            throw new BusinessException("Email já cadastrado", HttpStatus.CONFLICT);
+            throw new BusinessException("E-mail já em uso", HttpStatus.CONFLICT);
         }
 
         User user = User.builder()
@@ -144,13 +148,13 @@ public class UserService {
     public User toggleUserStatus(String userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
 
         if (user.getEmail().equals(loggedUserEmail)) {
-            throw new RuntimeException("Administradores não podem alterar seu próprio status.");
+        	throw new BusinessException("Administradores não podem alterar seu próprio status.", HttpStatus.FORBIDDEN);
         }
         
         user.setActive(!user.isActive());
@@ -168,13 +172,13 @@ public class UserService {
     public void deleteUser(String userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
 
         if (user.getEmail().equals(loggedUserEmail)) {
-            throw new RuntimeException("O administrador não pode excluir a própria conta.");
+        	throw new BusinessException("O administrador não pode excluir a própria conta.", HttpStatus.FORBIDDEN);
         }
 
         if (user.getRole() == Role.ADMIN) {
@@ -182,7 +186,7 @@ public class UserService {
             long adminCount = userRepository.countByRole(Role.ADMIN);
 
             if (adminCount <= 1) {
-                throw new RuntimeException("Não é possível excluir o último ADMINISTRADOR do sistema.");
+            	throw new BusinessException("Não é possível excluir o último ADMINISTRADOR do sistema.", HttpStatus.FORBIDDEN);
             }
         }
 
@@ -197,7 +201,7 @@ public class UserService {
      */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
     }
     
     /**
@@ -214,7 +218,7 @@ public class UserService {
     public User updateUserProfile(String email, UpdateUserProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
         if (request.getFullName() != null) {
             user.setFullName(request.getFullName());
@@ -298,7 +302,7 @@ public class UserService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
     }
     
     /**
