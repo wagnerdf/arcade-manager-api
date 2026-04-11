@@ -22,6 +22,9 @@ import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.exception.ErrorCode;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +33,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     /**
      * Registra um novo usuário no sistema.
@@ -45,11 +49,15 @@ public class UserService {
 
         String email = request.getEmail().toLowerCase();
         
+        log.info("Registering new user with email={}", email);
+        
         if (!request.getPassword().equals(request.getConfirmPassword())) {
+        	log.warn("Password mismatch during registration for email={}", email);
             throw new BusinessException("As senhas não coincidem.", HttpStatus.BAD_REQUEST, ErrorCode.PASSWORD_MISMATCH);
         }
         
         if (userRepository.existsByEmail(email)) {
+        	log.warn("Attempt to register with existing email={}", email);
             throw new BusinessException("E-mail já em uso", HttpStatus.CONFLICT, ErrorCode.USER_ALREADY_EXISTS);
         }
 
@@ -62,6 +70,10 @@ public class UserService {
                 .role(Role.USER)
                 .active(true)
                 .build();
+        
+        User savedUser = userRepository.save(user);
+
+        log.info("User registered successfully id={} email={}", savedUser.getId(), email);
 
         return userRepository.save(user);
     }
@@ -178,8 +190,11 @@ public class UserService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
+        
+        log.info("Deleting user id={}", userId);
 
         if (user.getEmail().equals(loggedUserEmail)) {
+        	log.warn("User tried to delete himself email={}", loggedUserEmail);
         	throw new BusinessException("O administrador não pode excluir a própria conta.", HttpStatus.FORBIDDEN);
         }
 
@@ -269,9 +284,12 @@ public class UserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
+        
+        log.info("Changing password for user={}", email);
 
         // valida senha atual
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        	log.warn("Invalid current password for user={}", email);
             throw new BusinessException("Senha atual incorreta", HttpStatus.BAD_REQUEST, ErrorCode.INVALID_CREDENTIALS);
         }
 

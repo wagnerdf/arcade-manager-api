@@ -13,6 +13,9 @@ import com.wagnerdf.arcademanager.dto.ValidationError;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Handler global de exceções da aplicação.
  *
@@ -21,6 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * Trata exceções do tipo BusinessException.
@@ -38,6 +43,13 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         HttpStatus status = ex.getStatus();
+        
+        log.warn("Business exception: code={} status={} message={} path={}",
+                ex.getCode(),
+                status,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -76,14 +88,18 @@ public class GlobalExceptionHandler {
                         error.getDefaultMessage()
                 ))
                 .toList();
+        
+        log.warn("Validation error: path={} errors={}",
+                request.getRequestURI(),
+                errors
+        );
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
                 .error(status.name())
-                .message("Validation error")
+                .message("Unexpected internal error")
                 .path(request.getRequestURI())
-                .errors(errors)
                 .build();
 
         return ResponseEntity.status(status).body(response);
@@ -105,6 +121,12 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        
+        log.error("Unexpected error: path={} message={}",
+                request.getRequestURI(),
+                ex.getMessage(),
+                ex
+        );
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
