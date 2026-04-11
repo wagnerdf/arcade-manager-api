@@ -14,12 +14,20 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.wagnerdf.arcademanager.security.JwtAuthenticationFilter;
 
+import lombok.RequiredArgsConstructor;
+
+import com.wagnerdf.arcademanager.logging.CorrelationIdFilter;
+
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 	
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
+	
+	@Autowired
+	private CorrelationIdFilter correlationIdFilter;
 
 	  /**
      * Define o encoder de senha utilizado pela aplicação.
@@ -78,8 +86,8 @@ public class SecurityConfig {
             .requestMatchers("/api/genres/**").permitAll()
             .anyRequest().authenticated()
         )
-        .addFilterBefore(jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+    	.addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();

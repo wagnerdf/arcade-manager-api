@@ -7,8 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.wagnerdf.arcademanager.dto.ChangePasswordRequest;
+import com.wagnerdf.arcademanager.dto.PageResponse;
 import com.wagnerdf.arcademanager.dto.RegisterUserRequest;
 import com.wagnerdf.arcademanager.dto.UpdateAddressRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserProfileRequest;
@@ -33,6 +36,8 @@ public class UserController {
     private final UserRepository userRepository;
     
     private final UserGameService userGameService;
+    
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     /**
      * Registrar um novo usuário no sistema
@@ -53,9 +58,19 @@ public class UserController {
      */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getUsers(Pageable pageable) {
-        Page<UserResponse> users = userService.getUsers(pageable);
-        return ResponseEntity.ok(users);
+    public ResponseEntity<PageResponse<UserResponse>> getUsers(Pageable pageable) {
+
+        Page<UserResponse> page = userService.getUsers(pageable);
+
+        PageResponse<UserResponse> response = new PageResponse<>(
+            page.getContent(),
+            page.getNumber(),
+            page.getSize(),
+            page.getTotalElements(),
+            page.getTotalPages()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -137,6 +152,8 @@ public class UserController {
 
         User user = userService.findByEmail(authentication.getName());
 
+        log.info("Fetching users list");
+        
         return ResponseEntity.ok(userService.mapToResponse(user));
     }
     

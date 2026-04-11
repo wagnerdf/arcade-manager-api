@@ -6,7 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.wagnerdf.arcademanager.controller.UserController;
 import com.wagnerdf.arcademanager.security.JwtService;
 
 import jakarta.validation.Valid;
@@ -22,6 +25,8 @@ public class AuthController {
 
     @Autowired
     private JwtService jwtService;
+    
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     /**
      * Realiza a autenticação do usuário e gera um token JWT.
@@ -44,6 +49,7 @@ public class AuthController {
         );
 
         String token = jwtService.generateToken(request.getEmail());
+        log.info("Fetching users list");
 
         return new AuthResponse(token);
     }
