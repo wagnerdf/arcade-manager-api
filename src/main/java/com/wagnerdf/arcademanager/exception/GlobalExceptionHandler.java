@@ -44,6 +44,7 @@ public class GlobalExceptionHandler {
                 .status(status.value())
                 .error(status.name())
                 .message(ex.getMessage())
+                .code(ex.getCode() != null ? ex.getCode().name() : null)
                 .path(request.getRequestURI())
                 .build();
 

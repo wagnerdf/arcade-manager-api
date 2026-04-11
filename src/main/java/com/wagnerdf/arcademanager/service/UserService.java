@@ -19,6 +19,7 @@ import com.wagnerdf.arcademanager.entity.Address;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.enums.Role;
 import com.wagnerdf.arcademanager.exception.BusinessException;
+import com.wagnerdf.arcademanager.exception.ErrorCode;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -45,11 +46,11 @@ public class UserService {
         String email = request.getEmail().toLowerCase();
         
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new BusinessException("As senhas não coincidem.", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("As senhas não coincidem.", HttpStatus.BAD_REQUEST, ErrorCode.PASSWORD_MISMATCH);
         }
         
         if (userRepository.existsByEmail(email)) {
-            throw new BusinessException("E-mail já em uso", HttpStatus.CONFLICT);
+            throw new BusinessException("E-mail já em uso", HttpStatus.CONFLICT, ErrorCode.USER_ALREADY_EXISTS);
         }
 
         User user = User.builder()
@@ -86,12 +87,13 @@ public class UserService {
         if(userId.equals(currentAdminId)) {
             throw new BusinessException(
                 "Você não pode alterar seu próprio papel ADMIN", 
-                HttpStatus.FORBIDDEN
+                HttpStatus.FORBIDDEN,
+                ErrorCode.ACCESS_DENIED
             );
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         // Verifica se já é ADMIN
         if(user.getRole() == Role.ADMIN) {
@@ -123,7 +125,7 @@ public class UserService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         // Verifica se já é USER
         if(user.getRole() == Role.USER) {
@@ -148,7 +150,7 @@ public class UserService {
     public User toggleUserStatus(String userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
@@ -172,7 +174,7 @@ public class UserService {
     public void deleteUser(String userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedUserEmail = authentication.getName();
@@ -201,7 +203,7 @@ public class UserService {
      */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-            .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
     }
     
     /**
@@ -218,7 +220,7 @@ public class UserService {
     public User updateUserProfile(String email, UpdateUserProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         if (request.getFullName() != null) {
             user.setFullName(request.getFullName());
@@ -266,16 +268,16 @@ public class UserService {
     public void changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
         // valida senha atual
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new BusinessException("Senha atual incorreta", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Senha atual incorreta", HttpStatus.BAD_REQUEST, ErrorCode.INVALID_CREDENTIALS);
         }
 
         // valida confirmação da nova senha
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new BusinessException("Nova senha e confirmação não conferem", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Nova senha e confirmação não conferem", HttpStatus.BAD_REQUEST, ErrorCode.PASSWORD_MISMATCH);
         }
 
         // criptografa nova senha
@@ -302,7 +304,7 @@ public class UserService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
     }
     
     /**
@@ -316,7 +318,7 @@ public class UserService {
     public User updateAddress(String email, UpdateAddressRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
      // Se não existir endereço, cria um novo
         if (user.getAddress() == null) {

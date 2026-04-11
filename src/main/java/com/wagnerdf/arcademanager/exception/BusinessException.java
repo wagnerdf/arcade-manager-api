@@ -6,6 +6,7 @@ public class BusinessException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     
 	private final HttpStatus status;
+	private final ErrorCode code;
 
 	 /**
      * Construtor da exceção de negócio.
@@ -16,6 +17,7 @@ public class BusinessException extends RuntimeException {
     public BusinessException(String message, HttpStatus status) {
         super(message);
         this.status = status;
+        this.code = null;
     }
 
     /**
@@ -25,5 +27,15 @@ public class BusinessException extends RuntimeException {
      */
     public HttpStatus getStatus() {
         return status;
+    }
+    
+    public BusinessException(String message, HttpStatus status, ErrorCode code) {
+        super(message);
+        this.status = status;
+        this.code = code;
+    }
+
+    public ErrorCode getCode() {
+        return code;
     }
 }

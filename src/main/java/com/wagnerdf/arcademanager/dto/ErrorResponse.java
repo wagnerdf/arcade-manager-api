@@ -43,4 +43,6 @@ public class ErrorResponse {
     private String path;
     
     private List<ValidationError> errors;
+    
+    private String code;
 }
