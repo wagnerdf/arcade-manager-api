@@ -32,61 +32,6 @@ public class UserGameService {
     private final GameRepository gameRepository;
     private final UserService userService;
     private final RawgService rawgService;
-
-    /**
-     * Adiciona um jogo à biblioteca do usuário autenticado.
-     *
-     * Regras:
-     * - O jogo deve existir na base (games)
-     * - O usuário é obtido via contexto de autenticação
-     * - Status padrão é BACKLOG caso não informado
-     *
-     * @param request dados do jogo
-     * @return UserGameResponse com dados formatados
-     */
-    @Transactional
-    public UserGameResponse addGameToLibrary(AddUserGameRequest request) {
-
-        // 🔹 1. Buscar ou criar Game usando externalId
-        Game game = gameRepository.findByExternalId(request.getExternalId())
-                .orElseGet(() -> {
-                    RawgGameDTO rawgGame = rawgService.getGameById(request.getExternalId());
-                    return saveNewGame(rawgGame);
-                });
-
-        // 🔹 2. Usuário autenticado
-        User user = userService.getAuthenticatedUser();
-
-        // 🔹 3. Evitar duplicidade
-        boolean alreadyExists = userGameRepository
-                .existsByUserIdAndGameId(user.getId(), game.getId());
-
-        if (alreadyExists) {
-            throw new BusinessException("Game already in your library", HttpStatus.CONFLICT);
-        }
-
-        // 🔹 4. Criar UserGame
-        UserGame userGame = UserGame.builder()
-                .userId(user.getId())
-                .gameId(game.getId())
-                .externalGameId(game.getExternalId())
-                .mediaType(request.getMediaType())
-                .status(request.getStatus() != null ? request.getStatus() : GameStatus.BACKLOG)
-                .build();
-
-        UserGame saved = userGameRepository.save(userGame);
-
-        // 🔹 5. Response
-        return UserGameResponse.builder()
-                .id(saved.getId())
-                .gameTitle(game.getTitle())
-                .platforms(game.getPlatforms())
-                .genres(game.getGenres())
-                .externalGameId(game.getExternalId())
-                .mediaType(saved.getMediaType())
-                .status(saved.getStatus())
-                .build();
-    }
     
     /**
      * Retorna a biblioteca de jogos do usuário autenticado com paginação.
