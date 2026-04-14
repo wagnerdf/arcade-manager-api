@@ -149,32 +149,50 @@ public class UserGameService {
      * @param request dados do jogo a ser adicionado à biblioteca do usuário
      */
     @Transactional
-    public void addGameToUser(AddUserGameRequest request) {
+    public UserGameResponse addGameToUser(AddUserGameRequest request) {
 
+    	// 🔹 1. Buscar ou criar Game usando externalId
     	Game game = gameRepository.findByExternalId(request.getExternalId())
             .orElseGet(() -> {
                 RawgGameDTO rawgGame = rawgService.getGameById(request.getExternalId());
                 return saveNewGame(rawgGame);
             });
 
+    	// 🔹 2. Usuário autenticado
     	User user = userService.getAuthenticatedUser();
 
+    	// 🔹 3. Evitar duplicidade
         boolean exists = userGameRepository.existsByUserIdAndGameId(user.getId(), game.getId());
         if (exists) {
             throw new RuntimeException("Jogo já está na sua biblioteca");
         }
 
+        // 🔹 4. Definir status padrão
         GameStatus status = request.getStatus() != null
                 ? request.getStatus()
                 : GameStatus.BACKLOG;
 
+        // 🔹 5. Criar UserGame
         UserGame userGame = new UserGame();
         userGame.setUserId(user.getId());
         userGame.setGameId(game.getId());
         userGame.setStatus(status);
         userGame.setMediaType(request.getMediaType());
 
-        userGameRepository.save(userGame);
+        // 🔹 6. Salvar no banco
+        UserGame saved = userGameRepository.save(userGame);
+        
+        // 🔥 7. RETORNAR DTO (AQUI QUE ENTRA O TRECHO QUE VOCÊ FICOU EM DÚVIDA)
+        return UserGameResponse.builder()
+            .id(saved.getId())
+            .gameTitle(game.getTitle())
+            .platforms(game.getPlatforms())
+            .genres(game.getGenres())
+            .externalGameId(game.getExternalId())
+            .mediaType(saved.getMediaType())
+            .status(saved.getStatus())
+            .statusDescription(saved.getStatus().getDescription())
+            .build();
     }
        
     /**

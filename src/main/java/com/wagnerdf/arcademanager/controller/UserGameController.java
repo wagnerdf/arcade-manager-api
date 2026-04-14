@@ -49,11 +49,11 @@ public class UserGameController {
      * @return UserGameResponse com dados do jogo salvo
      */
     @PostMapping("/me/library")
-    public ResponseEntity<Void> addGame(@RequestBody AddUserGameRequest request) {
+    public ResponseEntity<UserGameResponse> addGame(@RequestBody AddUserGameRequest request) {
 
-        userGameService.addGameToUser(request);
+        UserGameResponse response =  userGameService.addGameToUser(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     /**
