@@ -50,53 +50,66 @@ public class RawgService {
      * incluindo informações como nome, data de lançamento, imagem,
      * plataformas e gêneros.
      *
+     * Em caso de falha na comunicação com a API externa, uma {@link BusinessException}
+     * é lançada com status BAD_GATEWAY.
+     *
      * @param name Nome do jogo a ser pesquisado
      * @param platformTerm Termo da plataforma (ex: "pc", "playstation"), pode ser vazio
      * @return Lista de jogos encontrados convertidos em DTOs
+     *
+     * @throws BusinessException Caso ocorra erro ao consultar a API RAWG
      */
     public List<RawgGameDTO> searchGames(String name, String platformTerm) {
 
-    	String searchTerm = name;
+        String searchTerm = (platformTerm != null && !platformTerm.isBlank())
+            ? name + " " + platformTerm
+            : name;
 
-    	if (platformTerm != null && !platformTerm.isEmpty()) {
-    	    searchTerm += " " + platformTerm;
-    	}
+        String url = BASE_URL +
+                "?key=" + apiKey +
+                "&search=" + searchTerm +
+                "&search_precise=true";
 
-    	String url = BASE_URL +
-    	        "?key=" + apiKey +
-    	        "&search=" + searchTerm +
-    	        "&search_precise=true";
+        try {
 
-        RawgResponse response = restTemplate.getForObject(url, RawgResponse.class);
+            RawgResponse response = restTemplate.getForObject(url, RawgResponse.class);
 
-        if (response == null || response.getResults() == null) {
-            return List.of();
+            if (response == null || response.getResults() == null) {
+                return List.of();
+            }
+
+            return response.getResults().stream().map(game -> {
+
+                Set<String> platforms = game.getPlatforms() != null
+                        ? game.getPlatforms().stream()
+                            .map(p -> p.getPlatform().getName())
+                            .collect(Collectors.toSet())
+                        : Set.of();
+
+                Set<String> genres = game.getGenres() != null
+                        ? game.getGenres().stream()
+                            .map(g -> g.getName())
+                            .collect(Collectors.toSet())
+                        : Set.of();
+
+                return RawgGameDTO.builder()
+                        .externalId(game.getId())
+                        .name(game.getName())
+                        .released(game.getReleased())
+                        .backgroundImage(game.getBackground_image())
+                        .platforms(platforms)
+                        .genres(genres)
+                        .build();
+
+            }).collect(Collectors.toList());
+
+        } catch (Exception e) {
+
+            throw new BusinessException(
+                "Erro ao buscar jogos na RAWG",
+                HttpStatus.BAD_GATEWAY
+            );
         }
-
-        return response.getResults().stream().map(game -> {
-
-            Set<String> platforms = game.getPlatforms() != null
-                    ? game.getPlatforms().stream()
-                        .map(p -> p.getPlatform().getName())
-                        .collect(Collectors.toSet())
-                    : Set.of();
-
-            Set<String> genres = game.getGenres() != null
-                    ? game.getGenres().stream()
-                        .map(g -> g.getName())
-                        .collect(Collectors.toSet())
-                    : Set.of();
-
-            return RawgGameDTO.builder()
-                    .externalId(game.getId())
-                    .name(game.getName())
-                    .released(game.getReleased())
-                    .backgroundImage(game.getBackground_image())
-                    .platforms(platforms)
-                    .genres(genres)
-                    .build();
-
-        }).collect(Collectors.toList());
     }
     
     /**
