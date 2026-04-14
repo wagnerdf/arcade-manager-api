@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.exception.BusinessException;
@@ -65,10 +66,6 @@ public class RawgService {
     	        "?key=" + apiKey +
     	        "&search=" + searchTerm +
     	        "&search_precise=true";
-    	
-        if (platformTerm != null && !platformTerm.isEmpty()) {
-            url += "&search=" + name + " " + platformTerm;
-        }
 
         RawgResponse response = restTemplate.getForObject(url, RawgResponse.class);
 
@@ -131,7 +128,7 @@ public class RawgService {
                     restTemplate.getForObject(url, RawgGame.class);
 
             if (response == null) {
-                throw new RuntimeException("Game not found on RAWG");
+            	throw new BusinessException("Game não encontrado na RAWG", HttpStatus.NOT_FOUND);
             }
 
             Set<String> platforms = response.getPlatforms() != null
@@ -157,11 +154,18 @@ public class RawgService {
 
         } catch (HttpClientErrorException.NotFound e) {
 
-        	throw new BusinessException("Game não encontrado na RAWG", HttpStatus.NOT_FOUND);
+            throw new BusinessException("Game não encontrado na RAWG", HttpStatus.NOT_FOUND);
+
+        } catch (HttpServerErrorException e) {
+
+            throw new BusinessException("RAWG está indisponível no momento", HttpStatus.BAD_GATEWAY);
 
         } catch (HttpClientErrorException e) {
 
-            throw new RuntimeException("Erro ao consultar RAWG: " + e.getStatusCode());
-        }
+            throw new BusinessException("Erro ao consultar API RAWG", HttpStatus.BAD_GATEWAY);
+
+        } catch (Exception e) {
+            throw new BusinessException("Erro inesperado ao consultar RAWG", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
     }
 }
