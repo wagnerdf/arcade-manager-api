@@ -78,7 +78,9 @@ public class RawgService {
                 return List.of();
             }
 
-            return response.getResults().stream().map(game -> {
+            return response.getResults().stream()
+                    .limit(10)
+                    .map(game -> {
 
                 Set<String> platforms = game.getPlatforms() != null
                         ? game.getPlatforms().stream()
