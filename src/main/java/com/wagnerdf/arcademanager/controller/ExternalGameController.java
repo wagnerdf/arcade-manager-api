@@ -2,13 +2,17 @@ package com.wagnerdf.arcademanager.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.entity.Platform;
+import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.PlatformRepository;
 import com.wagnerdf.arcademanager.service.RawgService;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -24,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/external/games")
 @RequiredArgsConstructor
+@Validated
 public class ExternalGameController {
 
     private final RawgService rawgService;
@@ -40,18 +45,21 @@ public class ExternalGameController {
      * @param platformId (Opcional) ID da plataforma cadastrada no sistema
      * @return Lista de jogos encontrados na API externa
      *
-     * @throws RuntimeException Caso a plataforma informada não seja encontrada
+     * @throws BusinessException Caso a plataforma informada não seja encontrada
      */
     @GetMapping
     public List<RawgGameDTO> searchGames(
-            @RequestParam String name,
+    		@RequestParam @NotBlank String name,
             @RequestParam(required = false) String platformId) {
 
         String platformTerm = "";
 
         if (platformId != null) {
             Platform platform = platformRepository.findById(platformId)
-                    .orElseThrow(() -> new RuntimeException("Platform not found"));
+            		.orElseThrow(() -> new BusinessException(
+            			    "Platform not found",
+            			    HttpStatus.NOT_FOUND
+            			));
 
             platformTerm = mapPlatform(platform.getName());
         }
