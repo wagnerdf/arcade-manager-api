@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
@@ -21,6 +22,7 @@ import com.wagnerdf.arcademanager.dto.UpdateUserGameStatusRequest;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.entity.UserGame;
+import com.wagnerdf.arcademanager.enums.GameStatus;
 import com.wagnerdf.arcademanager.exception.BusinessException;
 import com.wagnerdf.arcademanager.repository.UserRepository;
 import com.wagnerdf.arcademanager.service.UserGameService;
@@ -68,8 +70,13 @@ public class UserGameController {
      * @return UserGameResponse com dados do jogo salvo
      */
     @GetMapping("/me/library")
-    public ResponseEntity<Page<UserGameResponse>> getLibrary(Pageable pageable) {
-        Page<UserGameResponse> library = userGameService.getUserLibrary(pageable);
+    public ResponseEntity<Page<UserGameResponse>> getLibrary(
+            @RequestParam(required = false) GameStatus status,
+            Pageable pageable
+    ) {
+
+        Page<UserGameResponse> library = userGameService.getUserLibrary(status, pageable);
+
         return ResponseEntity.ok(library);
     }
     

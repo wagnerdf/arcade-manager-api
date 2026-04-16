@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.wagnerdf.arcademanager.entity.UserGame;
+import com.wagnerdf.arcademanager.enums.GameStatus;
 
 public interface UserGameRepository extends MongoRepository<UserGame, String> {
 
@@ -15,5 +16,7 @@ public interface UserGameRepository extends MongoRepository<UserGame, String> {
     Page<UserGame> findByUserId(String userId, Pageable pageable);
     
     boolean existsByUserIdAndGameId(String userId, String gameId);
+    
+    Page<UserGame> findByUserIdAndStatus(String userId, GameStatus status, Pageable pageable);
 
 }

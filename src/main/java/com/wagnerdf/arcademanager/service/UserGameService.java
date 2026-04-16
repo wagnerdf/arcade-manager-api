@@ -299,4 +299,35 @@ public class UserGameService {
             .build();
     }
     
+    public Page<UserGameResponse> getUserLibrary(GameStatus status, Pageable pageable) {
+
+        User user = userService.getAuthenticatedUser();
+
+        Page<UserGame> userGamesPage;
+
+        if (status != null) {
+            userGamesPage = userGameRepository
+                    .findByUserIdAndStatus(user.getId(), status, pageable);
+        } else {
+            userGamesPage = userGameRepository
+                    .findByUserId(user.getId(), pageable);
+        }
+
+        return userGamesPage.map(userGame -> {
+
+            Game game = gameRepository.findById(userGame.getGameId())
+                    .orElseThrow(() -> new BusinessException("Game not found", HttpStatus.NOT_FOUND));
+
+            return UserGameResponse.builder()
+                    .id(userGame.getId())
+                    .gameTitle(game.getTitle())
+                    .platforms(game.getPlatforms())
+                    .genres(game.getGenres())
+                    .mediaType(userGame.getMediaType())
+                    .status(userGame.getStatus())
+                    .statusDescription(userGame.getStatus().getDescription())
+                    .build();
+        });
+    }
+    
 }
