@@ -20,6 +20,7 @@ import com.wagnerdf.arcademanager.dto.AddUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameStatusRequest;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
+import com.wagnerdf.arcademanager.dto.UserGameStatsDTO;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.entity.UserGame;
 import com.wagnerdf.arcademanager.enums.GameStatus;
@@ -179,5 +180,17 @@ public class UserGameController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/stats")
+    public ResponseEntity<UserGameStatsDTO> getStats(Authentication authentication) {
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        UserGameStatsDTO stats = userGameService.getStats(user.getId());
+
+        return ResponseEntity.ok(stats);
     }
 }

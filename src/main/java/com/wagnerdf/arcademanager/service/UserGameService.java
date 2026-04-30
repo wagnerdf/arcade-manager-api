@@ -14,6 +14,7 @@ import com.wagnerdf.arcademanager.dto.RawgGameDTO;
 import com.wagnerdf.arcademanager.dto.UpdateUserGameRequest;
 import com.wagnerdf.arcademanager.dto.UserDashboardResponse;
 import com.wagnerdf.arcademanager.dto.UserGameResponse;
+import com.wagnerdf.arcademanager.dto.UserGameStatsDTO;
 import com.wagnerdf.arcademanager.entity.Game;
 import com.wagnerdf.arcademanager.entity.User;
 import com.wagnerdf.arcademanager.entity.UserGame;
@@ -330,4 +331,15 @@ public class UserGameService {
         });
     }
     
+    public UserGameStatsDTO getStats(String userId) {
+        long total = userGameRepository.countByUserId(userId);
+        long playing = userGameRepository.countByUserIdAndStatus(userId, GameStatus.PLAYING);
+        long completed = userGameRepository.countByUserIdAndStatus(userId, GameStatus.COMPLETED);
+
+        return UserGameStatsDTO.builder()
+        	    .total(total)
+        	    .playing(playing)
+        	    .completed(completed)
+        	    .build();
+    }
 }

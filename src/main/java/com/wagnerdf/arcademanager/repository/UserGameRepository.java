@@ -18,5 +18,8 @@ public interface UserGameRepository extends MongoRepository<UserGame, String> {
     boolean existsByUserIdAndGameId(String userId, String gameId);
     
     Page<UserGame> findByUserIdAndStatus(String userId, GameStatus status, Pageable pageable);
+    
+    long countByUserId(String userId);
+    long countByUserIdAndStatus(String userId, GameStatus status);
 
 }
