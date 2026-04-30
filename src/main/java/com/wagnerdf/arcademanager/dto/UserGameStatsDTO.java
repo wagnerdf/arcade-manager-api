@@ -9,4 +9,6 @@ public class UserGameStatsDTO {
     private long total;
     private long playing;
     private long completed;
+    private long backlog;
+    private long wishlist;
 }

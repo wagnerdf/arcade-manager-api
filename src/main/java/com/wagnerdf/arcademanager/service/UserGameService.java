@@ -332,14 +332,31 @@ public class UserGameService {
     }
     
     public UserGameStatsDTO getStats(String userId) {
+
         long total = userGameRepository.countByUserId(userId);
-        long playing = userGameRepository.countByUserIdAndStatus(userId, GameStatus.PLAYING);
-        long completed = userGameRepository.countByUserIdAndStatus(userId, GameStatus.COMPLETED);
+
+        long playing = userGameRepository.countByUserIdAndStatus(
+            userId, GameStatus.PLAYING
+        );
+
+        long completed = userGameRepository.countByUserIdAndStatus(
+            userId, GameStatus.COMPLETED
+        );
+
+        long backlog = userGameRepository.countByUserIdAndStatus(
+            userId, GameStatus.BACKLOG
+        );
+
+        long wishlist = userGameRepository.countByUserIdAndStatus(
+            userId, GameStatus.WISHLIST
+        );
 
         return UserGameStatsDTO.builder()
-        	    .total(total)
-        	    .playing(playing)
-        	    .completed(completed)
-        	    .build();
+            .total(total)
+            .playing(playing)
+            .completed(completed)
+            .backlog(backlog)
+            .wishlist(wishlist)
+            .build();
     }
 }
