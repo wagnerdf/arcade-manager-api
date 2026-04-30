@@ -182,6 +182,18 @@ public class UserGameController {
         return ResponseEntity.noContent().build();
     }
     
+    /**
+     * Retorna as estatísticas da biblioteca de jogos do usuário autenticado.
+     *
+     * Regras de negócio:
+     * - Obtém o e-mail do usuário a partir do token JWT
+     * - Busca o usuário no banco de dados
+     * - Recupera as estatísticas agregadas da biblioteca (total, playing, completed, backlog, wishlist)
+     *
+     * @param authentication objeto de autenticação contendo os dados do usuário logado
+     *
+     * @return objeto contendo as estatísticas da biblioteca do usuário
+     */
     @GetMapping("/stats")
     public ResponseEntity<UserGameStatsDTO> getStats(Authentication authentication) {
         String email = authentication.getName();

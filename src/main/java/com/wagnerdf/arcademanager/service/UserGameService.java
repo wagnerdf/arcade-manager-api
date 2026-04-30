@@ -300,6 +300,22 @@ public class UserGameService {
             .build();
     }
     
+    /**
+     * Retorna a biblioteca de jogos do usuário autenticado de forma paginada.
+     *
+     * Regras de negócio:
+     * - Obtém o usuário autenticado
+     * - Permite filtragem opcional por status do jogo
+     * - Busca os registros de jogos do usuário no banco
+     * - Para cada registro:
+     *   - Busca os dados completos do jogo
+     *   - Monta o DTO de resposta com informações enriquecidas
+     *
+     * @param status filtro opcional para o status do jogo (PLAYING, COMPLETED, BACKLOG, WISHLIST)
+     * @param pageable objeto de paginação (page, size, sort)
+     *
+     * @return página contendo a lista de jogos do usuário com dados detalhados
+     */
     public Page<UserGameResponse> getUserLibrary(GameStatus status, Pageable pageable) {
 
         User user = userService.getAuthenticatedUser();
@@ -331,6 +347,21 @@ public class UserGameService {
         });
     }
     
+    /**
+     * Retorna o resumo estatístico da biblioteca de jogos do usuário.
+     *
+     * Regras de negócio:
+     * - Calcula o total de jogos do usuário
+     * - Agrupa os jogos por status:
+     *   - PLAYING (jogando atualmente)
+     *   - COMPLETED (finalizados)
+     *   - BACKLOG (na fila para jogar)
+     *   - WISHLIST (desejo jogar futuramente)
+     *
+     * @param userId ID do usuário autenticado
+     *
+     * @return objeto contendo as estatísticas da biblioteca do usuário
+     */
     public UserGameStatsDTO getStats(String userId) {
 
         long total = userGameRepository.countByUserId(userId);
