@@ -28,4 +28,6 @@ public class UserGameResponse {
     
     private String statusDescription;
     
+    private String coverUrl;
+    
 }

@@ -420,6 +420,7 @@ public class UserGameService {
             .mediaType(userGame.getMediaType())
             .status(userGame.getStatus())
             .statusDescription(userGame.getStatus().getDescription())
+            .coverUrl(game.getCoverUrl())
             .build();
     }
 }
