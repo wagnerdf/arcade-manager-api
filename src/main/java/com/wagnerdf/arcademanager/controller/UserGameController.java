@@ -205,4 +205,31 @@ public class UserGameController {
 
         return ResponseEntity.ok(stats);
     }
+    
+    /**
+     * Retorna um jogo específico da biblioteca do usuário autenticado.
+     *
+     * Regras de negócio:
+     * - O jogo deve existir
+     * - Deve pertencer ao usuário autenticado
+     *
+     * @param id ID do UserGame
+     * @param authentication objeto de autenticação contendo o usuário logado
+     *
+     * @return dados do jogo da biblioteca do usuário
+     */
+    @GetMapping("/me/{id}")
+    public ResponseEntity<UserGameResponse> getById(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        UserGameResponse response = userGameService.getById(user.getId(), id);
+
+        return ResponseEntity.ok(response);
+    }
 }

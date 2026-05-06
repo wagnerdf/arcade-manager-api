@@ -2,6 +2,7 @@ package com.wagnerdf.arcademanager.repository;
 
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -21,5 +22,7 @@ public interface UserGameRepository extends MongoRepository<UserGame, String> {
     
     long countByUserId(String userId);
     long countByUserIdAndStatus(String userId, GameStatus status);
+    
+    Optional<UserGame> findByIdAndUserId(String id, String userId);
 
 }

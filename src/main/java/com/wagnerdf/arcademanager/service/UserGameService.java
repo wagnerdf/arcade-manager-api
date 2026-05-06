@@ -390,4 +390,36 @@ public class UserGameService {
             .wishlist(wishlist)
             .build();
     }
+    
+    /**
+     * Busca um jogo da biblioteca do usuário pelo ID.
+     *
+     * Regras:
+     * - O jogo deve existir
+     * - Deve pertencer ao usuário autenticado
+     *
+     * @param userId ID do usuário autenticado
+     * @param userGameId ID do UserGame
+     *
+     * @return dados do jogo
+     */
+    public UserGameResponse getById(String userId, String userGameId) {
+
+        UserGame userGame = userGameRepository
+            .findByIdAndUserId(userGameId, userId)
+            .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+
+        Game game = gameRepository.findById(userGame.getGameId())
+            .orElseThrow(() -> new RuntimeException("Game não encontrado"));
+
+        return UserGameResponse.builder()
+            .id(userGame.getId())
+            .gameTitle(game.getTitle())
+            .platforms(game.getPlatforms())
+            .genres(game.getGenres())
+            .mediaType(userGame.getMediaType())
+            .status(userGame.getStatus())
+            .statusDescription(userGame.getStatus().getDescription())
+            .build();
+    }
 }
