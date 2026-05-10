@@ -2,6 +2,8 @@ package com.wagnerdf.arcademanager.controller;
 
 import com.wagnerdf.arcademanager.dto.EnumResponse;
 import com.wagnerdf.arcademanager.enums.GameStatus;
+import com.wagnerdf.arcademanager.enums.MediaType;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -17,6 +19,16 @@ public class EnumController {
                 .map(status -> new EnumResponse(
                         status.name(),
                         status.getDescription()
+                ))
+                .toList();
+    }
+    
+    @GetMapping("/media-type")
+    public List<EnumResponse> getMediaTypes() {
+        return Arrays.stream(MediaType.values())
+                .map(type -> new EnumResponse(
+                        type.name(),
+                        type.getDescription()
                 ))
                 .toList();
     }
