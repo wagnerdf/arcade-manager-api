@@ -29,12 +29,31 @@ public class BusinessException extends RuntimeException {
         return status;
     }
     
+    /**
+     * Construtor da exceção de negócio customizada.
+     *
+     * Utilizado para lançar erros controlados dentro da aplicação,
+     * permitindo retornar ao cliente uma mensagem, status HTTP
+     * e um código de erro específico.
+     *
+     * @param message mensagem descritiva do erro
+     * @param status status HTTP a ser retornado na resposta
+     * @param code código interno de erro para identificação
+     */
     public BusinessException(String message, HttpStatus status, ErrorCode code) {
         super(message);
         this.status = status;
         this.code = code;
     }
 
+    /**
+     * Retorna o código de erro associado à exceção.
+     *
+     * Este código pode ser utilizado pelo frontend para
+     * tratar erros de forma específica.
+     *
+     * @return código de erro da exceção
+     */
     public ErrorCode getCode() {
         return code;
     }
