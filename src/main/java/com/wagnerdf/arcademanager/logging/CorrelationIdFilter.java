@@ -20,6 +20,28 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 
     private static final String CORRELATION_ID_HEADER = "X-Correlation-Id";
 
+    
+    /**
+     * Filtro responsável por adicionar um identificador único (Correlation ID)
+     * para cada requisição HTTP processada pela aplicação.
+     *
+     * Este ID é utilizado para rastrear logs relacionados à mesma requisição,
+     * facilitando debug, monitoramento e análise de fluxo.
+     *
+     * Funcionalidades:
+     * - Obtém o Correlation ID do header "X-Correlation-Id" (caso exista)
+     * - Gera um novo ID caso não seja informado pelo cliente
+     * - Armazena o ID no MDC (Mapped Diagnostic Context) para uso em logs
+     * - Adiciona o usuário autenticado no contexto de log (quando disponível)
+     * - Retorna o Correlation ID no header da resposta
+     *
+     * @param request requisição HTTP recebida
+     * @param response resposta HTTP enviada ao cliente
+     * @param filterChain cadeia de filtros da aplicação
+     *
+     * @throws ServletException em caso de erro no processamento do filtro
+     * @throws IOException em caso de erro de I/O
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
